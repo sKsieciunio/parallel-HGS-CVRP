@@ -1,0 +1,24 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "default",
+            "displayName": "Default",
+            "generator": "Visual Studio 17 2022",
+            "architecture": "x64",
+            "toolset": "cuda=13.2",
+            "binaryDir": "${sourceDir}/build/${presetName}",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug",
+                "CMAKE_CUDA_ARCHITECTURES": "120"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "default",
+            "displayName": "Default",
+            "configurePreset": "default"
+        }
+    ] 
+}
