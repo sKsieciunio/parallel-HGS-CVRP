@@ -72,20 +72,61 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 
 		if (params.ap.useSwapStar == 1 && params.areCoordinatesProvided)
 		{
-			/* (SWAP*) MOVES LIMITED TO ROUTE PAIRS WHOSE CIRCLE SECTORS OVERLAP */
-			for (int rU = 0; rU < params.nbVehicles; rU++)
+			if (params.ap.useGpu && gpuLS_ != nullptr)
 			{
-				routeU = &routes[orderRoutes[rU]];
-				int lastTestSWAPStarRouteU = routeU->whenLastTestedSWAPStar;
-				routeU->whenLastTestedSWAPStar = nbMoves;
-				for (int rV = 0; rV < params.nbVehicles; rV++)
+				/* GPU SWAP*: one kernel launch evaluates ALL qualifying route pairs.
+				   We then greedily apply non-conflicting improving moves in cost order
+				   (best first, skip pairs that share a route with an already-applied move).
+				   This amortises kernel-launch and transfer overhead: O(outer-loop
+				   iterations) launches per LS call instead of O(total moves). */
+				flattenRoutesForGpu();
+				int numPairs = buildGpuRoutePairs();
+				if (numPairs > 0 &&
+				    gpuEvaluateSwapStar(
+				        gpuLS_,
+				        gpuRouteStart_.data(), gpuRouteLen_.data(),
+				        gpuRouteDuration_.data(), gpuRouteLoad_.data(), gpuRoutePenalty_.data(),
+				        gpuRouteCustomers_.data(), gpuDeltaRemoval_.data(),
+				        gpuPairU_.data(), gpuPairV_.data(), numPairs,
+				        penaltyCapacityLS, penaltyDurationLS,
+				        gpuAllResults_.data()))
 				{
-					routeV = &routes[orderRoutes[rV]];
-					if (routeU->nbCustomers > 0 && routeV->nbCustomers > 0 && routeU->cour < routeV->cour
-						&& (loopID == 0 || std::max<int>(routeU->whenLastModified, routeV->whenLastModified)
-							> lastTestSWAPStarRouteU))
-						if (CircleSector::overlap(routeU->sector, routeV->sector))
-							swapStar();
+					// Sort per-pair results by cost (best first)
+					std::sort(gpuAllResults_.begin(), gpuAllResults_.begin() + numPairs,
+					          [](const GpuSwapStarResult& a, const GpuSwapStarResult& b)
+					          { return a.moveCost < b.moveCost; });
+
+					// Greedily apply non-conflicting improving moves
+					std::vector<bool> routeTouched(params.nbVehicles, false);
+					for (int p = 0; p < numPairs; p++)
+					{
+						const GpuSwapStarResult& res = gpuAllResults_[p];
+						if (res.moveCost >= -MY_EPSILON) break;   // remaining moves not improving
+						if (routeTouched[res.routeU] || routeTouched[res.routeV]) continue;
+						applyGpuSwapStarResult(res);
+						routeTouched[res.routeU] = true;
+						routeTouched[res.routeV] = true;
+						searchCompleted = false;
+					}
+				}
+			}
+			else
+			{
+				/* Original CPU SWAP* path — completely unchanged */
+				for (int rU = 0; rU < params.nbVehicles; rU++)
+				{
+					routeU = &routes[orderRoutes[rU]];
+					int lastTestSWAPStarRouteU = routeU->whenLastTestedSWAPStar;
+					routeU->whenLastTestedSWAPStar = nbMoves;
+					for (int rV = 0; rV < params.nbVehicles; rV++)
+					{
+						routeV = &routes[orderRoutes[rV]];
+						if (routeU->nbCustomers > 0 && routeV->nbCustomers > 0 && routeU->cour < routeV->cour
+							&& (loopID == 0 || std::max<int>(routeU->whenLastModified, routeV->whenLastModified)
+								> lastTestSWAPStarRouteU))
+							if (CircleSector::overlap(routeU->sector, routeV->sector))
+								swapStar();
+					}
 				}
 			}
 		}
@@ -783,7 +824,7 @@ void LocalSearch::exportIndividual(Individual & indiv)
 	indiv.evaluateCompleteCost(params);
 }
 
-LocalSearch::LocalSearch(Params & params) : params (params)
+LocalSearch::LocalSearch(Params & params) : params(params), gpuLS_(nullptr)
 {
 	clients = std::vector < Node >(params.nbClients + 1);
 	routes = std::vector < Route >(params.nbVehicles);
@@ -791,10 +832,10 @@ LocalSearch::LocalSearch(Params & params) : params (params)
 	depotsEnd = std::vector < Node >(params.nbVehicles);
 	bestInsertClient = std::vector < std::vector <ThreeBestInsert> >(params.nbVehicles, std::vector <ThreeBestInsert>(params.nbClients + 1));
 
-	for (int i = 0; i <= params.nbClients; i++) 
-	{ 
-		clients[i].cour = i; 
-		clients[i].isDepot = false; 
+	for (int i = 0; i <= params.nbClients; i++)
+	{
+		clients[i].cour = i;
+		clients[i].isDepot = false;
 	}
 	for (int i = 0; i < params.nbVehicles; i++)
 	{
@@ -809,5 +850,129 @@ LocalSearch::LocalSearch(Params & params) : params (params)
 	}
 	for (int i = 1 ; i <= params.nbClients ; i++) orderNodes.push_back(i);
 	for (int r = 0 ; r < params.nbVehicles ; r++) orderRoutes.push_back(r);
+
+	// GPU initialisation (only when requested)
+	if (params.ap.useGpu)
+	{
+		const int n = params.nbClients + 1;
+		std::vector<double> timeCostFlat((size_t)n * n);
+		for (int i = 0; i < n; i++)
+			for (int j = 0; j < n; j++)
+				timeCostFlat[(size_t)i * n + j] = params.timeCost[i][j];
+
+		std::vector<double> demand(n), service(n);
+		for (int i = 0; i < n; i++)
+		{
+			demand[i]  = params.cli[i].demand;
+			service[i] = params.cli[i].serviceDuration;
+		}
+
+		gpuLS_ = createGpuLocalSearch(
+			timeCostFlat.data(), demand.data(), service.data(),
+			params.nbClients, params.nbVehicles,
+			params.vehicleCapacity, params.durationLimit);
+
+		if (!gpuLS_)
+			std::cout << "Warning: GPU initialisation failed; falling back to CPU SWAP*." << std::endl;
+
+		// Pre-allocate flat CPU buffers (reused each LS call to avoid heap churn)
+		const int V = params.nbVehicles;
+		const int N = params.nbClients;
+		const int maxPairs = V * (V - 1) / 2;
+		gpuRouteStart_   .resize(V);
+		gpuRouteLen_     .resize(V);
+		gpuRouteDuration_.resize(V);
+		gpuRouteLoad_    .resize(V);
+		gpuRoutePenalty_ .resize(V);
+		gpuRouteCustomers_.resize(N);
+		gpuDeltaRemoval_ .resize(N);
+		gpuPairU_        .resize(maxPairs);
+		gpuPairV_        .resize(maxPairs);
+		gpuAllResults_   .resize(maxPairs);
+	}
+}
+
+LocalSearch::~LocalSearch()
+{
+	destroyGpuLocalSearch(gpuLS_);
+}
+
+// ---------------------------------------------------------------------------
+// GPU helper: flatten linked-list routes into contiguous arrays
+// ---------------------------------------------------------------------------
+void LocalSearch::flattenRoutesForGpu()
+{
+	int offset = 0;
+	for (int r = 0; r < params.nbVehicles; r++)
+	{
+		gpuRouteStart_   [r] = offset;
+		gpuRouteLen_     [r] = routes[r].nbCustomers;
+		gpuRouteDuration_[r] = routes[r].duration;
+		gpuRouteLoad_    [r] = routes[r].load;
+		gpuRoutePenalty_ [r] = routes[r].penalty;
+
+		for (Node* node = routes[r].depot->next; !node->isDepot; node = node->next)
+		{
+			// Marginal removal cost (same as preprocessInsertions computes on CPU)
+			gpuDeltaRemoval_[offset] =
+				params.timeCost[node->prev->cour][node->next->cour]
+				- params.timeCost[node->prev->cour][node->cour]
+				- params.timeCost[node->cour][node->next->cour];
+			gpuRouteCustomers_[offset] = node->cour;
+			offset++;
+		}
+	}
+}
+
+// ---------------------------------------------------------------------------
+// GPU helper: build the list of qualifying route pairs
+// ---------------------------------------------------------------------------
+int LocalSearch::buildGpuRoutePairs()
+{
+	int numPairs = 0;
+	for (int rU = 0; rU < params.nbVehicles; rU++)
+	{
+		if (routes[rU].nbCustomers == 0) continue;
+		for (int rV = rU + 1; rV < params.nbVehicles; rV++)
+		{
+			if (routes[rV].nbCustomers == 0) continue;
+			if (!CircleSector::overlap(routes[rU].sector, routes[rV].sector)) continue;
+			gpuPairU_[numPairs] = rU;
+			gpuPairV_[numPairs] = rV;
+			numPairs++;
+		}
+	}
+	return numPairs;
+}
+
+// ---------------------------------------------------------------------------
+// GPU helper: apply a move result (customer IDs) to the linked-list state
+// ---------------------------------------------------------------------------
+void LocalSearch::applyGpuSwapStarResult(const GpuSwapStarResult& res)
+{
+	// Translate "insert after customer X" into a Node pointer.
+	// Customer 0 is the depot, so we use the route's depot node.
+	auto posNode = [&](int custId, int routeIdx) -> Node*
+	{
+		return (custId == 0) ? &depots[routeIdx] : &clients[custId];
+	};
+
+	if (res.moveType == 0)   // SWAP
+	{
+		insertNode(&clients[res.nodeU], posNode(res.bestPosU, res.routeV));
+		insertNode(&clients[res.nodeV], posNode(res.bestPosV, res.routeU));
+	}
+	else if (res.moveType == 1)   // RELOCATE U -> routeV
+	{
+		insertNode(&clients[res.nodeU], posNode(res.bestPosU, res.routeV));
+	}
+	else   // RELOCATE V -> routeU
+	{
+		insertNode(&clients[res.nodeV], posNode(res.bestPosV, res.routeU));
+	}
+
+	nbMoves++;   // must happen before updateRouteData (sets whenLastModified = nbMoves)
+	updateRouteData(&routes[res.routeU]);
+	updateRouteData(&routes[res.routeV]);
 }
 

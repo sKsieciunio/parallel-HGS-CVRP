@@ -11,6 +11,7 @@ find_package(CUDAToolkit REQUIRED)
 set(
     src_files
     Program/CudaSanity.cu
+    Program/GpuLocalSearch.cu
     Program/Genetic.cpp
     Program/Individual.cpp
     Program/LocalSearch.cpp

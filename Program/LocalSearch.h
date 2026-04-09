@@ -24,6 +24,7 @@ SOFTWARE.*/
 #define LOCALSEARCH_H
 
 #include "Individual.h"
+#include "GpuLocalSearch.h"   // C++ interface to GPU SWAP* (no CUDA types)
 
 struct Node ;
 
@@ -127,6 +128,30 @@ private:
 	std::vector < Route > routes;				// Elements representing routes
 	std::vector < std::vector < ThreeBestInsert > > bestInsertClient;   // (SWAP*) For each route and node, storing the cheapest insertion cost 
 
+	/* GPU ACCELERATION (only active when params.ap.useGpu == 1) */
+	GpuLocalSearch* gpuLS_;					// Opaque GPU handle; nullptr when GPU disabled.
+	// Host-side flat buffers filled by flattenRoutesForGpu() each call.
+	// Pre-allocated in constructor to avoid per-call heap allocation.
+	std::vector<int>    gpuRouteStart_;
+	std::vector<int>    gpuRouteLen_;
+	std::vector<double> gpuRouteDuration_;
+	std::vector<double> gpuRouteLoad_;
+	std::vector<double> gpuRoutePenalty_;
+	std::vector<int>    gpuRouteCustomers_;
+	std::vector<double> gpuDeltaRemoval_;
+	std::vector<int>    gpuPairU_;
+	std::vector<int>    gpuPairV_;
+	std::vector<GpuSwapStarResult> gpuAllResults_;   // per-pair results buffer
+
+	// Pack current linked-list routes into the flat GPU buffers.
+	void flattenRoutesForGpu();
+	// Build the list of qualifying (non-empty, overlapping sector) route pairs.
+	// Returns the number of pairs found.
+	int buildGpuRoutePairs();
+	// Translate a GpuSwapStarResult (customer IDs) into Node* calls and
+	// apply the move to the linked-list representation.
+	void applyGpuSwapStarResult(const GpuSwapStarResult& res);
+
 	/* TEMPORARY VARIABLES USED IN THE LOCAL SEARCH LOOPS */
 	// nodeUPrev -> nodeU -> nodeX -> nodeXNext
 	// nodeVPrev -> nodeV -> nodeY -> nodeYNext
@@ -186,8 +211,9 @@ private:
 	// Exporting the LS solution into an individual and calculating the penalized cost according to the original penalty weights from Params
 	void exportIndividual(Individual & indiv);
 
-	// Constructor
+	// Constructor / destructor
 	LocalSearch(Params & params);
+	~LocalSearch();
 };
 
 #endif

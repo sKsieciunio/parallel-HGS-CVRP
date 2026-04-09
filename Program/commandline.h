@@ -33,19 +33,20 @@ class CommandLine
 public:
 	AlgorithmParameters ap = default_algorithm_parameters();
 
-	int nbVeh		 = INT_MAX;		// Number of vehicles. Default value: infinity
-	std::string pathInstance;		// Instance path
-	std::string pathSolution;		// Solution path
-	bool verbose     = true;
+	int nbVeh = INT_MAX;	  // Number of vehicles. Default value: infinity
+	std::string pathInstance; // Instance path
+	std::string pathSolution; // Solution path
+	bool verbose = true;
 	bool isRoundingInteger = true;
 
 	// Reads the line of command and extracts possible options
-	CommandLine(int argc, char* argv[])
+	CommandLine(int argc, char *argv[])
 	{
 		if (argc % 2 != 1 || argc > 35 || argc < 3)
 		{
 			std::cout << "----- NUMBER OF COMMANDLINE ARGUMENTS IS INCORRECT: " << argc << std::endl;
-			display_help(); throw std::string("Incorrect line of command");
+			display_help();
+			throw std::string("Incorrect line of command");
 		}
 		else
 		{
@@ -54,41 +55,44 @@ public:
 			for (int i = 3; i < argc; i += 2)
 			{
 				if (std::string(argv[i]) == "-t")
-					ap.timeLimit = atof(argv[i+1]);
+					ap.timeLimit = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-it")
-					ap.nbIter  = atoi(argv[i+1]);
+					ap.nbIter = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-seed")
-					ap.seed    = atoi(argv[i+1]);
+					ap.seed = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-veh")
-					nbVeh = atoi(argv[i+1]);
+					nbVeh = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-round")
-					isRoundingInteger = atoi(argv[i+1]);
+					isRoundingInteger = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-log")
-					verbose = atoi(argv[i+1]);
+					verbose = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbGranular")
-					ap.nbGranular = atoi(argv[i+1]);
+					ap.nbGranular = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-mu")
-					ap.mu = atoi(argv[i+1]);
+					ap.mu = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-lambda")
-					ap.lambda = atoi(argv[i+1]);
+					ap.lambda = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbElite")
-					ap.nbElite = atoi(argv[i+1]);
+					ap.nbElite = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbClose")
-					ap.nbClose = atoi(argv[i+1]);
+					ap.nbClose = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbIterPenaltyManagement")
-					ap.nbIterPenaltyManagement = atoi(argv[i+1]);
+					ap.nbIterPenaltyManagement = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbIterTraces")
 					ap.nbIterTraces = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-targetFeasible")
-					ap.targetFeasible = atof(argv[i+1]);
+					ap.targetFeasible = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-penaltyIncrease")
-					ap.penaltyIncrease = atof(argv[i+1]);
+					ap.penaltyIncrease = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-penaltyDecrease")
-					ap.penaltyDecrease = atof(argv[i+1]);
+					ap.penaltyDecrease = atof(argv[i + 1]);
+				else if (std::string(argv[i]) == "-gpu")
+					ap.useGpu = atoi(argv[i + 1]);
 				else
 				{
 					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;
-					display_help(); throw std::string("Incorrect line of command");
+					display_help();
+					throw std::string("Incorrect line of command");
 				}
 			}
 		}
@@ -118,6 +122,7 @@ public:
 		std::cout << "[-targetFeasible <double>] target ratio of feasible individuals between penalty updates. Defaults to 0.2                        " << std::endl;
 		std::cout << "[-penaltyIncrease <double>] penalty increase if insufficient feasible individuals between penalty updates. Defaults to 1.2      " << std::endl;
 		std::cout << "[-penaltyDecrease <double>] penalty decrease if sufficient feasible individuals between penalty updates. Defaults to 0.85       " << std::endl;
+		std::cout << "[-gpu <bool>] whether to use GPU acceleration for the local search. It can be 0 or 1. Defaults to 0.                            " << std::endl;
 		std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << std::endl;
 	};
