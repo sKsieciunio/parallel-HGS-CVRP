@@ -79,3 +79,12 @@ Individual::Individual(Params & params, std::string fileName) : Individual(param
 	else 
 		throw std::string("Impossible to open solution file provided in input in : " + fileName);
 }
+
+Individual::Individual(Params& params, const std::vector<int>& chromT)
+{
+	this->chromT = chromT;
+	successors = std::vector<int>(params.nbClients + 1);
+	predecessors = std::vector<int>(params.nbClients + 1);
+	chromR = std::vector<std::vector<int>>(params.nbVehicles);
+	eval.penalizedCost = 1.e30;
+}
