@@ -51,7 +51,7 @@ public:
 
     bool shouldReceive(const IslandState& state) override {
         if (state.iteration < warmup) return false;
-        return state.iterWithoutImprovement >= receiveStagnationThreshold;
+        return state.iterationWithoutImprovement >= receiveStagnationThreshold;
     }
 };
 
@@ -75,7 +75,7 @@ public:
     }
 
     int currentReceiveInterval(const IslandState& state) const {
-        double ratio = (double)state.iterWithoutImprovement / state.maxIterNoImprovement;
+        double ratio = (double)state.iterationWithoutImprovement / state.maxIterNoImprovement;
         return (int)(maxReceiveInterval - ratio * (maxReceiveInterval - minReceiveInterval));
     }
 

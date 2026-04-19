@@ -18,7 +18,6 @@ MPIIslandCommunicator::MPIIslandCommunicator(Params& params) : params(params) {
     MPI_Comm_size(MPI_COMM_WORLD, &size);
     recvBuffer.resize(params.nbClients);
     postReceive();
-    MPI_Irecv(&doneBuffer, 1, MPI_INT, MPI_ANY_SOURCE, TAG_DONE, MPI_COMM_WORLD, &doneRecvRequest);
 }
 
 void MPIIslandCommunicator::sendMigrants(const std::vector<Individual*>& migrants, const std::vector<int>& destinations) {
@@ -45,26 +44,6 @@ std::vector<Individual> MPIIslandCommunicator::tryReceiveMigrants() {
     return received;
 }
 
-void MPIIslandCommunicator::signalDone() {
-    if (doneSignaled) return;
-    doneSignaled = true;
-    int msg = 1;
-    for (int i = 0; i < size; i++) {
-        if (i == rank) continue;
-        MPI_Send(&msg, 1, MPI_INT, i, TAG_DONE, MPI_COMM_WORLD);
-    }
-}
-
-bool MPIIslandCommunicator::shouldStop() {
-    if (stopFlag) return true;
-    int flag = 0;
-    MPI_Test(&doneRecvRequest, &flag, MPI_STATUS_IGNORE);
-    if (flag) {
-        stopFlag = true;
-    }
-    return stopFlag;
-}
-
 MPIIslandCommunicator::~MPIIslandCommunicator() {
     for (auto& ps : pendingSends) {
         MPI_Cancel(&ps.request);
@@ -72,10 +51,6 @@ MPIIslandCommunicator::~MPIIslandCommunicator() {
     }
     MPI_Cancel(&recvRequest);
     MPI_Request_free(&recvRequest);
-    if (!stopFlag) {
-        MPI_Cancel(&doneRecvRequest);
-        MPI_Request_free(&doneRecvRequest);
-    }
 }
 
 #endif // USE_MPI

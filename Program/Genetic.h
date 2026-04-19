@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include "Population.h"
 #include "Individual.h"
+#include "IslandModel.h"
 
 class Genetic
 {
@@ -44,6 +45,9 @@ public:
 
 	// Constructor
 	Genetic(Params & params);
+
+	IslandModel* islandModel;
+	Genetic(Params& params, IslandModel& islandModel_);
 };
 
 #endif

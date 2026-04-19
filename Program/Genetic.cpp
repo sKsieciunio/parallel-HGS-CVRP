@@ -36,6 +36,12 @@ void Genetic::run()
 			population.restart();
 			nbIterNonProd = 1;
 		}
+
+		/* MIGRATIONS */
+		if (islandModel != nullptr) {
+			islandModel->UpdateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter);
+			islandModel->HandleMigrations(population, split, localSearch, params);
+		}
 	}
 	if (params.verbose) std::cout << "----- GENETIC ALGORITHM FINISHED AFTER " << nbIter << " ITERATIONS. TIME SPENT: " << (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC << std::endl;
 }
@@ -77,10 +83,22 @@ void Genetic::crossoverOX(Individual & result, const Individual & parent1, const
 	split.generalSplit(result, parent1.eval.nbRoutes);
 }
 
-Genetic::Genetic(Params & params) : 
-	params(params), 
-	split(params),
-	localSearch(params),
-	population(params,this->split,this->localSearch),
-	offspring(params){}
+Genetic::Genetic(Params& params)
+	: params(params)
+	, split(params)
+	, localSearch(params)
+	, population(params, this->split, this->localSearch)
+	, offspring(params)
+	, islandModel(nullptr)
+{
+}
 
+Genetic::Genetic(Params& params, IslandModel& islandModel)
+	: params(params)
+	, split(params)
+	, localSearch(params)
+	, population(params, this->split, this->localSearch)
+	, offspring(params)
+	, islandModel(&islandModel)
+{
+}

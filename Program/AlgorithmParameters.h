@@ -25,6 +25,24 @@ struct AlgorithmParameters {
 	double timeLimit;		// CPU time limit until termination in seconds. Default value: 0 (i.e., inactive)
 	int useSwapStar;		// Use SWAP* local search or not. Default value: 1. Only available when coordinates are provided.
 
+	// IslandModel
+	int useIslandModel;
+	// Topology
+	int topology;
+	int nbNodes;
+	// MigrationPolicy
+	int migrationPolicy;
+	int interval;
+	int warmup;
+	int sendCooldown;
+	int receiveStagnationThreshold;
+	int minReceiveInterval;
+	int maxReceiveInterval;
+	// MigrantSelector
+	int migrantSelector;
+	int selectionCount;
+	// IslandCommunicator
+	int islandCommunicator;
 
 };
 

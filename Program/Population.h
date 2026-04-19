@@ -103,8 +103,14 @@ class Population
 
    // Destructor
    ~Population();
+	
+   const std::vector<Individual*>& getFeasibleSubpop() const {
+      return feasibleSubpop;
+   }
 
-   
+   const std::vector<Individual*>& getInfeasibleSubpop() const {
+      return infeasibleSubpop;
+   }
 };
 
 #endif

@@ -26,6 +26,24 @@ struct AlgorithmParameters default_algorithm_parameters() {
 	ap.timeLimit = 0;
 	ap.useSwapStar = 1;
 
+	ap.useIslandModel = 0;
+
+	ap.topology = 0;
+	ap.nbNodes = 1;
+
+	ap.migrationPolicy = 0;
+	ap.interval = 20;
+	ap.warmup = 20;
+	ap.sendCooldown = 20;
+	ap.receiveStagnationThreshold = 20;
+	ap.minReceiveInterval = 20;
+	ap.maxReceiveInterval = 100;
+
+	ap.migrantSelector = 0;
+	ap.selectionCount = 1;
+
+	ap.islandCommunicator = 0;
+
 	return ap;
 }
 
@@ -46,5 +64,21 @@ void print_algorithm_parameters(const AlgorithmParameters & ap)
 	std::cout << "---- nbIterTraces            is set to " << ap.nbIterTraces << std::endl;
 	std::cout << "---- timeLimit               is set to " << ap.timeLimit << std::endl;
 	std::cout << "---- useSwapStar             is set to " << ap.useSwapStar << std::endl;
+	std::cout << "==================================================" << std::endl;
+
+	std::cout << "=========== Island Model Parameters ==============" << std::endl;
+	std::cout << "---- useIslandModel					   is set to " << ap.useIslandModel << std::endl;
+	std::cout << "---- topology							   is set to " << ap.topology << std::endl;
+	std::cout << "---- nbNodes							   is set to " << ap.nbNodes << std::endl;
+	std::cout << "---- migrationPolicy					   is set to " << ap.migrationPolicy << std::endl;
+	std::cout << "---- interval							   is set to " << ap.interval << std::endl;
+	std::cout << "---- warmup							   is set to " << ap.warmup << std::endl;
+	std::cout << "---- sendCooldown						   is set to " << ap.sendCooldown << std::endl;
+	std::cout << "---- receiveStagnationThreshold		   is set to " << ap.receiveStagnationThreshold << std::endl;
+	std::cout << "---- minReceiveInterval				   is set to " << ap.minReceiveInterval << std::endl;
+	std::cout << "---- maxReceiveInterval				   is set to " << ap.maxReceiveInterval << std::endl;
+	std::cout << "---- migrantSelector					   is set to " << ap.migrantSelector << std::endl;
+	std::cout << "---- selectionCount					   is set to " << ap.selectionCount << std::endl;
+	std::cout << "---- islandCommunicator				   is set to " << ap.islandCommunicator << std::endl;
 	std::cout << "==================================================" << std::endl;
 }

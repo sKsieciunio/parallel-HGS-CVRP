@@ -38,4 +38,4 @@ public:
 	}
 };
 
-#endif // !ACCAPTANCE_POLYCY_H
+#endif // !ACCAPTANCE_POLICY_H

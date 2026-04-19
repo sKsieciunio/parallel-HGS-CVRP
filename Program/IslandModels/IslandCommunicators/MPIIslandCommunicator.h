@@ -21,13 +21,7 @@ private:
     };
     std::list<PendingSend> pendingSends;
 
-    bool doneSignaled = false;
-    bool stopFlag = false;
-    int doneBuffer = 0;
-    MPI_Request doneRecvRequest;
-
     static const int TAG_MIGRANT = 0;
-    static const int TAG_DONE = 1;
 
     void cleanupPendingSends();
 
@@ -40,11 +34,7 @@ public:
 
     std::vector<Individual> tryReceiveMigrants() override;
 
-    void signalDone() override;
-
-    bool shouldStop() override;
-
-    int getRank() const { return rank; }
+    int getRank() const override { return rank; }
     int getSize() const { return size; }
 
     ~MPIIslandCommunicator();
