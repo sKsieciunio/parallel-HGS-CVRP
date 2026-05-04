@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include "Individual.h"
 #include "GpuLocalSearch.h"   // C++ interface to GPU SWAP* (no CUDA types)
+#include "OpenMPLocalSearch.h"
 
 struct Node ;
 
@@ -151,6 +152,9 @@ private:
 	// Translate a GpuSwapStarResult (customer IDs) into Node* calls and
 	// apply the move to the linked-list representation.
 	void applyGpuSwapStarResult(const GpuSwapStarResult& res);
+
+	/* OPENMP ACCELERATION (only active when params.ap.useOpenMP == 1) */
+	OpenMPLocalSearch* ompLS_;
 
 	/* TEMPORARY VARIABLES USED IN THE LOCAL SEARCH LOOPS */
 	// nodeUPrev -> nodeU -> nodeX -> nodeXNext

@@ -27,6 +27,8 @@ struct AlgorithmParameters default_algorithm_parameters() {
 	ap.useSwapStar = 1;
 	ap.useGpu = 0;
 
+	ap.useOpenMp = 0;
+
 	return ap;
 }
 
@@ -48,5 +50,6 @@ void print_algorithm_parameters(const AlgorithmParameters & ap)
 	std::cout << "---- timeLimit               is set to " << ap.timeLimit << std::endl;
 	std::cout << "---- useSwapStar             is set to " << ap.useSwapStar << std::endl;
 	std::cout << "---- useGpu                  is set to " << ap.useGpu << std::endl;
+	std::cout << "---- useOpenMp               is set to " << ap.useOpenMp << std::endl;
 	std::cout << "==================================================" << std::endl;
 }

@@ -15,6 +15,7 @@ set(
     Program/Genetic.cpp
     Program/Individual.cpp
     Program/LocalSearch.cpp
+    Program/OpenMPLocalSearch.cpp
     Program/Params.cpp
     Program/Population.cpp
     Program/Split.cpp
@@ -30,3 +31,8 @@ set_target_properties(bin PROPERTIES
     CUDA_SEPARABLE_COMPILATION ON
 )
 target_link_libraries(bin PRIVATE CUDA::cudart)
+
+if(OpenMP_FOUND)
+    target_link_libraries(bin PRIVATE OpenMP::OpenMP_CXX)
+    message(STATUS "OpenMP found")
+endif()

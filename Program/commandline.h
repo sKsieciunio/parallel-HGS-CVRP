@@ -42,7 +42,7 @@ public:
 	// Reads the line of command and extracts possible options
 	CommandLine(int argc, char *argv[])
 	{
-		if (argc % 2 != 1 || argc > 35 || argc < 3)
+		if (argc < 3)
 		{
 			std::cout << "----- NUMBER OF COMMANDLINE ARGUMENTS IS INCORRECT: " << argc << std::endl;
 			display_help();
@@ -88,6 +88,8 @@ public:
 					ap.penaltyDecrease = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-gpu")
 					ap.useGpu = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-openMP")
+					ap.useOpenMp = atoi(argv[i + 1]);
 				else
 				{
 					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;
@@ -123,6 +125,7 @@ public:
 		std::cout << "[-penaltyIncrease <double>] penalty increase if insufficient feasible individuals between penalty updates. Defaults to 1.2      " << std::endl;
 		std::cout << "[-penaltyDecrease <double>] penalty decrease if sufficient feasible individuals between penalty updates. Defaults to 0.85       " << std::endl;
 		std::cout << "[-gpu <bool>] whether to use GPU acceleration for the local search. It can be 0 or 1. Defaults to 0.                            " << std::endl;
+		std::cout << "[-useOpenMP <bool>] whether to use OpenMP for the local search. It can be 0 or 1. Defaults to 0.                                " << std::endl;
 		std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << std::endl;
 	};

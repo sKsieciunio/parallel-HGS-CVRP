@@ -25,6 +25,8 @@ struct AlgorithmParameters {
 	double timeLimit;		// CPU time limit until termination in seconds. Default value: 0 (i.e., inactive)
 	int useSwapStar;		// Use SWAP* local search or not. Default value: 1. Only available when coordinates are provided.
 	int useGpu;				// Use GPU acceleration for SWAP* evaluation. Default value: 0.
+
+	int useOpenMp;			// Use OpenMP parallelization for local search. Default value: 0.
 };
 
 #ifdef __cplusplus
