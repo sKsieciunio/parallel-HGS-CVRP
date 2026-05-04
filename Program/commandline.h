@@ -42,7 +42,7 @@ public:
 	// Reads the line of command and extracts possible options
 	CommandLine(int argc, char* argv[])
 	{
-		if (argc % 2 != 1 || argc > 35 || argc < 3)
+		if (argc < 3)
 		{
 			std::cout << "----- NUMBER OF COMMANDLINE ARGUMENTS IS INCORRECT: " << argc << std::endl;
 			display_help(); throw std::string("Incorrect line of command");
@@ -85,6 +85,33 @@ public:
 					ap.penaltyIncrease = atof(argv[i+1]);
 				else if (std::string(argv[i]) == "-penaltyDecrease")
 					ap.penaltyDecrease = atof(argv[i+1]);
+
+				else if (std::string(argv[i]) == "-island")
+					ap.useIslandModel = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-topology")
+					ap.topology = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-nbNodes")
+					ap.nbNodes = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-migrationPolicy")
+					ap.migrationPolicy = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-interval")
+					ap.interval = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-warmup")
+					ap.warmup = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-sendCooldown")
+					ap.sendCooldown = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-receiveStagnationThreshold")
+					ap.receiveStagnationThreshold = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-minReceiveInterval")
+					ap.minReceiveInterval = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-maxReceiveInterval")
+					ap.maxReceiveInterval = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-migrantSelector")
+					ap.migrantSelector = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-selectionCount")
+					ap.selectionCount = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-immigrantHandler")
+					ap.immigrantHandler = atoi(argv[i + 1]);
 				else
 				{
 					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;

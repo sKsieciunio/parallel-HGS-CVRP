@@ -6,6 +6,16 @@
 #ifdef USE_MPI
 #include <mpi.h>
 
+struct PendingSend {
+    std::vector<int> buffer;
+    MPI_Request request;
+};
+
+struct Result {
+    double cost;
+    int rank;
+};
+
 class MPIIslandCommunicator : public IslandCommunicator {
 private:
     Params& params;
@@ -15,10 +25,6 @@ private:
     std::vector<int> recvBuffer;
     MPI_Request recvRequest;
 
-    struct PendingSend {
-        std::vector<int> buffer;
-        MPI_Request request;
-    };
     std::list<PendingSend> pendingSends;
 
     static const int TAG_MIGRANT = 0;
@@ -36,6 +42,8 @@ public:
 
     int getRank() const override { return rank; }
     int getSize() const { return size; }
+
+    bool getBestSolution(const Individual* bestLocal, int nbClients, std::vector<int>& outBestChromT, double& outBestCost) override;
 
     ~MPIIslandCommunicator();
 };

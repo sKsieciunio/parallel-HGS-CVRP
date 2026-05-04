@@ -53,4 +53,35 @@ MPIIslandCommunicator::~MPIIslandCommunicator() {
     MPI_Request_free(&recvRequest);
 }
 
+bool MPIIslandCommunicator::getBestSolution(const Individual* bestLocal, int nbClients, std::vector<int>& outBestChromT, double& outBestCost)
+{
+    double localCost = bestLocal ? bestLocal->eval.penalizedCost : 1e30;
+
+    Result localVal = { localCost, rank };
+    Result globalVal;
+    MPI_Allreduce(&localVal, &globalVal, 1, MPI_DOUBLE_INT,
+        MPI_MINLOC, MPI_COMM_WORLD);
+
+    outBestCost = globalVal.cost;
+
+    if (globalVal.rank == rank && rank != 0) {
+        MPI_Send(bestLocal->chromT.data(), nbClients, MPI_INT,
+            0, 99, MPI_COMM_WORLD);
+    }
+
+    if (rank == 0) {
+        outBestChromT.resize(nbClients);
+        if (globalVal.rank == 0) {
+            if (bestLocal)
+                outBestChromT = bestLocal->chromT;
+        }
+        else {
+            MPI_Recv(outBestChromT.data(), nbClients, MPI_INT,
+                globalVal.rank, 99, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        }
+        return true;
+    }
+    return false;
+}
+
 #endif // USE_MPI

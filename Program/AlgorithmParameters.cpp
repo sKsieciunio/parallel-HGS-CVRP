@@ -39,6 +39,8 @@ struct AlgorithmParameters default_algorithm_parameters() {
 	ap.minReceiveInterval = 20;
 	ap.maxReceiveInterval = 100;
 
+	ap.immigrantHandler = 0;
+
 	ap.migrantSelector = 0;
 	ap.selectionCount = 1;
 

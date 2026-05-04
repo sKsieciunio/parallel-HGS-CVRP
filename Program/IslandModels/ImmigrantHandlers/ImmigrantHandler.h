@@ -6,12 +6,12 @@
 class ImmigrantHandler {
 public:
 	virtual ~ImmigrantHandler() = default;
-	virtual void handle(Population& population, Individual& migrant, const Split& split, const LocalSearch& localSearch, const Params& params) const = 0;
+	virtual void handle(Population& population, Individual& migrant, Split& split, LocalSearch& localSearch, const Params& params) = 0;
 };
 
 class StandardImmigrantHandler : public ImmigrantHandler {
 public:
-	void handle(Population& population, Individual& migrant, const Split& split, const LocalSearch& localSearch, const Params& params) override const {
+	void handle(Population& population, Individual& migrant, Split& split, LocalSearch& localSearch, const Params& params) override {
 		split.generalSplit(migrant, params.nbVehicles);
 		population.addIndividual(migrant, false);
 	}
@@ -19,7 +19,7 @@ public:
 
 class LocalSearchImmigrantHandler : public ImmigrantHandler {
 public:
-	void handle(Population& population, Individual& migrant, const Split& split, const LocalSearch& localSearch, const Params& params) override const {
+	void handle(Population& population, Individual& migrant, Split& split, LocalSearch& localSearch, const Params& params) override {
 		split.generalSplit(migrant, params.nbVehicles);
 		localSearch.run(migrant, params.penaltyCapacity, params.penaltyDuration);
 		population.addIndividual(migrant, false);
@@ -28,7 +28,7 @@ public:
 
 class RepairImmigrantHandler : public ImmigrantHandler {
 public:
-	void handle(Population& population, Individual& migrant, const Split& split, const LocalSearch& localSearch, const Params& params) override const {
+	void handle(Population& population, Individual& migrant, Split& split, LocalSearch& localSearch, const Params& params) override {
 		split.generalSplit(migrant, params.nbVehicles);
 		localSearch.run(migrant, params.penaltyCapacity, params.penaltyDuration);
 		if (!migrant.eval.isFeasible) {

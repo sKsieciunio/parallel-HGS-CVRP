@@ -1,6 +1,7 @@
 #ifndef ISLAND_MODEL_H
 #define ISLAND_MODEL_H
 
+#include <memory>
 #include "../Topologies/Topology.h"
 #include "../ImmigrantHandlers/ImmigrantHandler.h"
 #include "../IslandCommunicators/IslandCommunicator.h"
@@ -9,21 +10,19 @@
 
 class IslandModel {
 private:
-	Topology& topology;
-	ImmigrantHandler& immigrantHandler;
-	IslandCommunicator& islandCommunicator;
-	MigrationPolicy& migrationPolicy;
-	MigrantSelector& migrantSelector;
-	IslandState islandState;
+    std::unique_ptr<Topology> topology;
+    std::unique_ptr<ImmigrantHandler> immigrantHandler;
+    std::unique_ptr<MigrationPolicy> migrationPolicy;
+    std::unique_ptr<MigrantSelector> migrantSelector;
+    std::unique_ptr<IslandCommunicator> islandCommunicator;
+    IslandState islandState;
 
 public:
-	IslandModel(Topology& topology_, ImmigrantHandler& immigrantHandler_, IslandCommunicator& islandCommunicator_, MigrationPolicy& migrationPolicy_, MigrantSelector& migrantSelector_, IslandState& islandState_) :
-		topology(topology_), immigrantHandler(immigrantHandler_), islandCommunicator(islandCommunicator_), migrationPolicy(migrationPolicy_), migrantSelector(migrantSelector_), islandState(islandState_)
-	{ }
+    IslandModel(Params& params);
 
-	void UpdateState(int iteration, int iterationWithoutImprovement, bool foundNewBest, int maxIterNoImprovement);
-
-	void HandleMigrations(Population& population, const Split& split, const LocalSearch& localSearch, const Params& params);
+    void updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement);
+    void handleMigrations(Population& population, Split& split, LocalSearch& localSearch, Params& params);
+    bool getBestSolution(Population& population, Split& split, Params& params, Individual& bestOut);
 };
 
-#endif // !ISLAND_MODEL_H
+#endif

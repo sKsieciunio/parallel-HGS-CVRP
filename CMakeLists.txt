@@ -21,6 +21,7 @@ set(
     Program/InstanceCVRPLIB.cpp
     Program/AlgorithmParameters.cpp
     Program/C_Interface.cpp
+    Program/IslandModels/IslandModel.cpp
     Program/IslandModels/IslandCommunicators/MPIIslandCommunicator.cpp
 )
 

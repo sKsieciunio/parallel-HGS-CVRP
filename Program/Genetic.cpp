@@ -39,8 +39,8 @@ void Genetic::run()
 
 		/* MIGRATIONS */
 		if (islandModel != nullptr) {
-			islandModel->UpdateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter);
-			islandModel->HandleMigrations(population, split, localSearch, params);
+			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter);
+			islandModel->handleMigrations(population, split, localSearch, params);
 		}
 	}
 	if (params.verbose) std::cout << "----- GENETIC ALGORITHM FINISHED AFTER " << nbIter << " ITERATIONS. TIME SPENT: " << (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC << std::endl;

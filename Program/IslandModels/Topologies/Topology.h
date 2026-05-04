@@ -39,7 +39,7 @@ public:
     Hypercube(int n_islands_, int island_idx_) :
         Topology(n_islands_, island_idx_) {
         neighbors = {};
-        for (int i = 0; i < n_islands; i <<= 1) {
+        for (int i = 1; i < n_islands; i <<= 1) {
             neighbors.push_back(i ^ island_idx);
         }
     }

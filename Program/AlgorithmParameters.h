@@ -41,6 +41,8 @@ struct AlgorithmParameters {
 	// MigrantSelector
 	int migrantSelector;
 	int selectionCount;
+	// ImmigrantHandler
+	int immigrantHandler;
 	// IslandCommunicator
 	int islandCommunicator;
 
