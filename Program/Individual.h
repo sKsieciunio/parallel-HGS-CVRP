@@ -56,7 +56,6 @@ public:
   // Constructor of an individual from a file in CVRPLib solution format as produced by the algorithm (useful if a user wishes to input an initial solution)
   Individual(Params & params, std::string fileName);
 
-  // Constructor for deserialization purposes
-  Individual(Params& params, std::vector<int>& chromT_);
+  Individual(Params& params, const std::vector<int>& chromT);
 };
 #endif

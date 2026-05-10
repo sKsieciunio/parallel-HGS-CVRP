@@ -2,7 +2,7 @@
 #define MPI_ISLAND_COMMUNICATOR_H
 
 #include "IslandCommunicator.h"
-#define USE_MPI
+
 #ifdef USE_MPI
 #include <mpi.h>
 

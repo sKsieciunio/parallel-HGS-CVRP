@@ -42,6 +42,10 @@ int main(int argc, char *argv[])
         if (commandline.ap.useIslandModel)
         {
             IslandModel islandModel(params);
+
+			int islandRank = islandModel.islandCommunicator->getRank();
+			params.ran.seed(commandline.ap.seed + islandRank);
+
             Genetic solver(params, islandModel);
             solver.run();
 

@@ -9,15 +9,13 @@
 #include "../MigrantSelectors/MigrantSelector.h"
 
 class IslandModel {
-private:
+public:
     std::unique_ptr<Topology> topology;
     std::unique_ptr<ImmigrantHandler> immigrantHandler;
     std::unique_ptr<MigrationPolicy> migrationPolicy;
     std::unique_ptr<MigrantSelector> migrantSelector;
     std::unique_ptr<IslandCommunicator> islandCommunicator;
     IslandState islandState;
-
-public:
     IslandModel(Params& params);
 
     void updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement);

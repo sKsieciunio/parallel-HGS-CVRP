@@ -87,4 +87,5 @@ Individual::Individual(Params& params, const std::vector<int>& chromT)
 	predecessors = std::vector<int>(params.nbClients + 1);
 	chromR = std::vector<std::vector<int>>(params.nbVehicles);
 	eval.penalizedCost = 1.e30;
+	biasedFitness = 0;
 }
