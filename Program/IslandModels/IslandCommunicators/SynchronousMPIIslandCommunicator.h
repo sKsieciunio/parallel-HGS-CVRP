@@ -2,11 +2,13 @@
 #define SYNC_MPI_ISLAND_COMMUNICATOR_H
 
 #include "IslandCommunicator.h"
+#include "MPIShared.h"
 
 #ifdef USE_MPI
 #include <mpi.h>
 
-class SynchronousMPIIslandCommunicator : public IslandCommunicator {
+class SynchronousMPIIslandCommunicator : public IslandCommunicator 
+{
 private:
     Params& params;
     int rank;
@@ -18,9 +20,11 @@ private:
     std::vector<std::vector<int>> sendBuffers;
 
     static const int TAG_MIGRANT = 0;
+    static const int TAG_BEST = 1;
 
 public:
-    SynchronousMPIIslandCommunicator(Params& params) : params(params) {
+    SynchronousMPIIslandCommunicator(Params& params) : params(params) 
+    {
         MPI_Comm_rank(MPI_COMM_WORLD, &rank);
         MPI_Comm_size(MPI_COMM_WORLD, &size);
         recvBuf.resize(params.nbClients);
@@ -29,8 +33,8 @@ public:
     void sendMigrants(const std::vector<Individual*>& migrants, const std::vector<int>& destinations) override;
     std::vector<Individual> tryReceiveMigrants() override;
 
-    int getRank() const override;
-    int getSize() const;
+    int getRank() const override { return rank; }
+    int getSize() const { return size; }
 
     bool getBestSolution(const Individual* bestLocal, int nbClients, std::vector<int>& outBestChromT, double& outBestCost) override;
 

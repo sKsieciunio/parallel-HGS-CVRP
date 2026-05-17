@@ -2,21 +2,19 @@
 #define MPI_ISLAND_COMMUNICATOR_H
 
 #include "IslandCommunicator.h"
+#include "MPIShared.h"
 
 #ifdef USE_MPI
 #include <mpi.h>
 
-struct PendingSend {
+struct PendingSend 
+{
     std::vector<int> buffer;
     MPI_Request request;
 };
 
-struct Result {
-    double cost;
-    int rank;
-};
-
-class MPIIslandCommunicator : public IslandCommunicator {
+class MPIIslandCommunicator : public IslandCommunicator 
+{
 private:
     Params& params;
     int rank;
@@ -28,6 +26,7 @@ private:
     std::list<PendingSend> pendingSends;
 
     static const int TAG_MIGRANT = 0;
+    static const int TAG_BEST = 1;
 
     void cleanupPendingSends();
 

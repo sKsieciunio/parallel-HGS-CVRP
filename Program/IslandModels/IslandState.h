@@ -3,7 +3,8 @@
 
 #include "../Population.h"
 
-struct IslandState {
+struct IslandState
+{
 	int iteration;
 	int iterationWithoutImprovement;
 	bool foundNewBest;

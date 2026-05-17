@@ -8,7 +8,8 @@
 #include "../MigrationPolicies/MigrationPolicy.h"
 #include "../MigrantSelectors/MigrantSelector.h"
 
-class IslandModel {
+class IslandModel
+{
 public:
     std::unique_ptr<Topology> topology;
     std::unique_ptr<ImmigrantHandler> immigrantHandler;

@@ -38,7 +38,8 @@ void Genetic::run()
 		}
 
 		/* MIGRATIONS */
-		if (islandModel != nullptr) {
+		if (islandModel != nullptr) 
+		{
 			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter);
 			islandModel->handleMigrations(population, split, localSearch, params);
 		}

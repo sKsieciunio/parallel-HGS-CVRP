@@ -23,6 +23,7 @@ set(
     Program/C_Interface.cpp
     Program/IslandModels/IslandModel.cpp
     Program/IslandModels/IslandCommunicators/MPIIslandCommunicator.cpp
+    Program/IslandModels/IslandCommunicators/SynchronousMPIIslandCommunicator.cpp
 )
 
 include_directories(Program Program/IslandModels Program/IslandModels/ImmigrantHandlers Program/IslandModels/IslandCommunicators Program/IslandModels/MigrantSelectors Program/IslandModels/MigrationPolicies Program/IslandModels/Topologies)

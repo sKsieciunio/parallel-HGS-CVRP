@@ -3,7 +3,8 @@
 
 #include "../../Individual.h"
 
-class IslandCommunicator {
+class IslandCommunicator 
+{
 public:
     virtual ~IslandCommunicator() = default;
     virtual void sendMigrants(const std::vector<Individual*>& migrants, const std::vector<int>& destinations) = 0;
