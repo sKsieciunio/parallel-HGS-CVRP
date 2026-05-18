@@ -8,6 +8,9 @@ OpenMPLocalSearch::OpenMPLocalSearch(Params& params) : params(params)
 		std::vector<std::vector<ThreeBestInsert>>(
 			params.nbVehicles,
 			std::vector<ThreeBestInsert>(params.nbClients + 1)));
+	int maxPairs = params.nbVehicles * (params.nbVehicles - 1) / 2;
+	qualifyingPairs.reserve(maxPairs);
+	results.reserve(maxPairs);
 }
 
 bool OpenMPLocalSearch::runSwapStar(
@@ -20,10 +23,10 @@ bool OpenMPLocalSearch::runSwapStar(
 {
 	this->penaltyCapacityLS = penCapacity;
 	this->penaltyDurationLS = penDuration;
+	results.clear();
 
 	// Build list of qualifying route pairs
-	std::vector<RoutePair> pairs;
-
+	qualifyingPairs.clear();
 	for (int rU = 0; rU < params.nbVehicles; rU++)
 	{
 		Route& ru = routes[orderRoutes[rU]];
@@ -37,14 +40,13 @@ bool OpenMPLocalSearch::runSwapStar(
 				&& (loopID == 0 || std::max<int>(ru.whenLastModified, rv.whenLastModified) > lastTest)
 				&& CircleSector::overlap(ru.sector, rv.sector))
 			{
-				pairs.push_back({ orderRoutes[rU], orderRoutes[rV] });
+				qualifyingPairs.push_back({orderRoutes[rU], orderRoutes[rV]});
 			}
 		}
 	}
 
-	if (pairs.empty())
+	if (qualifyingPairs.empty())
 	{
-		results.clear();
 		return false;
 	}
 
@@ -60,21 +62,21 @@ bool OpenMPLocalSearch::runSwapStar(
 	}
 
 	// Evaluate all pairs in parallel
-	std::vector<OmpSwapStarResult> pairResults(pairs.size());
+	results.resize(qualifyingPairs.size());
 
 #pragma omp parallel for schedule(dynamic)
-	for (int p = 0; p < (int)pairs.size(); p++)
+	for (int p = 0; p < (int)qualifyingPairs.size(); p++)
 	{
 		int tid = omp_get_thread_num();
-		pairResults[p] = evaluatePair(
-			pairs[p].rU, pairs[p].rV,
+		results[p] = evaluatePair(
+			qualifyingPairs[p].rU, qualifyingPairs[p].rV,
 			routes, clients, depots,
 			threadBestInsert[tid]);
 	}
 
 	// Check if any pair found an improving move
 	bool hasImproving = false;
-	for (auto& r : pairResults)
+	for (auto& r : results)
 	{
 		if (r.moveCost < -MY_EPSILON)
 		{
@@ -83,20 +85,20 @@ bool OpenMPLocalSearch::runSwapStar(
 		}
 	}
 
-	results.clear();
 	if (!hasImproving) return false;
 
 	// Sort by cost
-	std::sort(pairResults.begin(), pairResults.end(),
+	std::sort(results.begin(), results.end(),
 		[](const OmpSwapStarResult& a, const OmpSwapStarResult& b)
 		{ return a.moveCost < b.moveCost; });
 
-	for (auto& r : pairResults)
+	int numResults = 0;
+	for (auto& r : results)
 	{
 		if (r.moveCost >= -MY_EPSILON) break;
-		results.push_back(r);
+		numResults++;
 	}
-
+	results.resize(numResults);
 	return true;
 
 }

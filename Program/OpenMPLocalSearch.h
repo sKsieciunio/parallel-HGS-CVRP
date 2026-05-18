@@ -12,7 +12,8 @@ struct Route;
 struct ThreeBestInsert;
 struct SwapStarElement;
 
-struct RoutePair {
+struct RoutePair 
+{
 	int rU;
 	int rV;
 };
@@ -34,6 +35,7 @@ class OpenMPLocalSearch
 private:
 	Params& params;
 	int nThreads;
+	std::vector<RoutePair> qualifyingPairs;
 
 	// Per-thread buffers for ThreeBestInsert
 	// Dimension: [nThreads][nbVehicles][nbClients+1]

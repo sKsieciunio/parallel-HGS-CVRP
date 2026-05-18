@@ -114,12 +114,12 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 			{
 				if (ompLS_->runSwapStar(routes, clients, depots, orderRoutes, loopID, nbMoves, penaltyCapacityLS, penaltyDurationLS))
 				{
-					std::vector<bool> routeTouched(params.nbVehicles, false);
+					std::fill(routeTouched_.begin(), routeTouched_.end(), false);
 					for (auto& res : ompLS_->results)
 					{
 						if (res.moveCost >= -MY_EPSILON) break;
-						if ((res.routeUIdx >= 0 && routeTouched[res.routeUIdx]) ||
-							(res.routeVIdx >= 0 && routeTouched[res.routeVIdx]))
+						if ((res.routeUIdx >= 0 && routeTouched_[res.routeUIdx]) ||
+							(res.routeVIdx >= 0 && routeTouched_[res.routeVIdx]))
 							continue;
 
 						if (res.bestPositionU != nullptr)
@@ -131,12 +131,12 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 						if (res.routeUIdx >= 0)
 						{
 							updateRouteData(&routes[res.routeUIdx]);
-							routeTouched[res.routeUIdx] = true;
+							routeTouched_[res.routeUIdx] = true;
 						}
 						if (res.routeVIdx >= 0)
 						{
 							updateRouteData(&routes[res.routeVIdx]);
-							routeTouched[res.routeVIdx] = true;
+							routeTouched_[res.routeVIdx] = true;
 						}
 						searchCompleted = false;
 					}
@@ -856,7 +856,8 @@ void LocalSearch::exportIndividual(Individual & indiv)
 	indiv.evaluateCompleteCost(params);
 }
 
-LocalSearch::LocalSearch(Params & params) : params(params), gpuLS_(nullptr), ompLS_(nullptr)
+LocalSearch::LocalSearch(Params & params)
+	: params(params), gpuLS_(nullptr), ompLS_(nullptr), routeTouched_(params.nbVehicles, false)
 {
 	clients = std::vector < Node >(params.nbClients + 1);
 	routes = std::vector < Route >(params.nbVehicles);

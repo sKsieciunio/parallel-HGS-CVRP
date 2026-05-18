@@ -156,6 +156,8 @@ private:
 	/* OPENMP ACCELERATION (only active when params.ap.useOpenMP == 1) */
 	OpenMPLocalSearch* ompLS_;
 
+	std::vector<bool> routeTouched_;
+
 	/* TEMPORARY VARIABLES USED IN THE LOCAL SEARCH LOOPS */
 	// nodeUPrev -> nodeU -> nodeX -> nodeXNext
 	// nodeVPrev -> nodeV -> nodeY -> nodeYNext

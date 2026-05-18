@@ -52,3 +52,7 @@ cmake-build-*
 *.out
 *.app
 
+# Formating
+*.clang-format
+
+
