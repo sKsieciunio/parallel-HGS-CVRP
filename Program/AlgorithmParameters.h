@@ -45,7 +45,9 @@ struct AlgorithmParameters {
 	int immigrantHandler;
 	// IslandCommunicator
 	int islandCommunicator;
+	int useGpu;				// Use GPU acceleration for SWAP* evaluation. Default value: 0.
 
+	int useOpenMp;			// Use OpenMP parallelization for local search. Default value: 0.
 };
 
 #ifdef __cplusplus

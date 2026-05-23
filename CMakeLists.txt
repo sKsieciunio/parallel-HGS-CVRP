@@ -12,9 +12,11 @@ find_package(MPI)
 set(
     src_files
     Program/CudaSanity.cu
+    Program/GpuLocalSearch.cu
     Program/Genetic.cpp
     Program/Individual.cpp
     Program/LocalSearch.cpp
+    Program/OpenMPLocalSearch.cpp
     Program/Params.cpp
     Program/Population.cpp
     Program/Split.cpp
@@ -35,11 +37,14 @@ set_target_properties(bin PROPERTIES
 )
 target_link_libraries(bin PRIVATE CUDA::cudart)
 
-
 if(MPI_FOUND)
     target_link_libraries(bin PRIVATE MPI::MPI_CXX)
     target_compile_definitions(bin PRIVATE USE_MPI)
     message(STATUS "MPI found")
 else()
     message(STATUS "MPI not found")
+endif()
+if(OpenMP_FOUND)
+    target_link_libraries(bin PRIVATE OpenMP::OpenMP_CXX)
+    message(STATUS "OpenMP found")
 endif()
