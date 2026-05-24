@@ -113,6 +113,14 @@ class Population
    {
       return infeasibleSubpop;
    }
+
+   void UpdateAllBiasedFitness() 
+   {
+	   updateBiasedFitnesses(infeasibleSubpop);
+	   updateBiasedFitnesses(feasibleSubpop);
+   }
+
+   const Individual & getBinaryTournamentNoUpdate();
 };
 
 #endif

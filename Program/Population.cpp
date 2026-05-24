@@ -305,3 +305,17 @@ Population::~Population()
 	for (int i = 0; i < (int)feasibleSubpop.size(); i++) delete feasibleSubpop[i];
 	for (int i = 0; i < (int)infeasibleSubpop.size(); i++) delete infeasibleSubpop[i];
 }
+
+const Individual & Population::getBinaryTournamentNoUpdate(std::minstd_rand rng)
+{
+	std::uniform_int_distribution<> distr(0, feasibleSubpop.size() + infeasibleSubpop.size() - 1);
+	int place1 = distr(rng);
+	int place2 = distr(rng);
+	Individual * indiv1 = (place1 >= (int)feasibleSubpop.size()) ? infeasibleSubpop[place1 - feasibleSubpop.size()] : feasibleSubpop[place1];
+	Individual * indiv2 = (place2 >= (int)feasibleSubpop.size()) ? infeasibleSubpop[place2 - feasibleSubpop.size()] : feasibleSubpop[place2];
+
+	if (indiv1->biasedFitness < indiv2->biasedFitness)
+		return *indiv1;
+	else
+		return *indiv2;
+}
