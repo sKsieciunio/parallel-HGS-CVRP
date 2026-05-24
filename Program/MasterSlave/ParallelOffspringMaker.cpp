@@ -1,37 +1,53 @@
 #include "ParallelOffspringMaker.h"
 #include <omp.h>
 
-ParallelOffspringMaker::ParallelOffspringMaker(Params & params, Population * population)
-	: params(params), population(population)
+ParallelOffspringMaker::ParallelOffspringMaker(Params & params, Population * population, int numOffspring, int numThreads)
+	: params(params), population(population),
+	  numOffspring(numOffspring), numThreads(numThreads)
 {
-	numThreads = omp_get_max_threads();
+	localSearches.reserve(numThreads);
+	splits.reserve(numThreads);
 	for (int t = 0; t < numThreads; t++) {
 		localSearches.emplace_back(params);
 		splits.emplace_back(params);
-		rngs.emplace_back(params.ap.seed + t * 77 + 13);
+	}
+
+	rngs.reserve(numOffspring);
+	offspring.reserve(numOffspring);
+	for (int i = 0; i < numOffspring; i++) {
+		rngs.emplace_back(params.ap.seed + i * 77 + 13);
 		offspring.emplace_back(params);
 	}
-	needsRepair.resize(numThreads, false);
+
+	needsRepair.resize(numOffspring, false);
+	distr = std::uniform_int_distribution<>(0, params.nbClients - 1);
+	offspringFreqClient.resize(numOffspring * (params.nbClients + 1), false);
+
+	omp_set_num_threads(numThreads);
 }
 
-void ParallelOffspringMaker::crossoverOX(Individual & result, const Individual & parent1, const Individual & parent2, std::minstd_rand & rng)
+void ParallelOffspringMaker::crossoverOX(Individual & result, const Individual & parent1, const Individual & parent2, std::minstd_rand & rng, int offspringIdx)
 {
-	std::vector<bool> freqClient(params.nbClients + 1, false);
-	std::uniform_int_distribution<> distr(0, params.nbClients - 1);
+	int offset = offspringIdx * (params.nbClients + 1);
+	std::fill(offspringFreqClient.begin() + offset, offspringFreqClient.begin() + offset + params.nbClients + 1, false);
+
 	int start = distr(rng);
 	int end = distr(rng);
 	while (end == start)
 		end = distr(rng);
 
 	int j = start;
-	while (j % params.nbClients != (end + 1) % params.nbClients) {
+	while (j % params.nbClients != (end + 1) % params.nbClients)
+	{
 		result.chromT[j % params.nbClients] = parent1.chromT[j % params.nbClients];
-		freqClient[result.chromT[j % params.nbClients]] = true;
+		offspringFreqClient[offset + result.chromT[j % params.nbClients]] = true;
 		j++;
 	}
-	for (int i = 1; i <= params.nbClients; i++) {
+	for (int i = 1; i <= params.nbClients; i++)
+	{
 		int temp = parent2.chromT[(end + i) % params.nbClients];
-		if (!freqClient[temp]) {
+		if (!offspringFreqClient[offset + temp])
+		{
 			result.chromT[j % params.nbClients] = temp;
 			j++;
 		}
@@ -42,42 +58,41 @@ bool ParallelOffspringMaker::makeOffspring()
 {
 	population->updateAllBiasedFitnesses();
 
-#pragma omp parallel
+#pragma omp parallel for schedule(dynamic)
+	for (int i = 0; i < numOffspring; i++) 
 	{
 		int tid = omp_get_thread_num();
-
-		const Individual & p1 = population->getBinaryTournamentNoUpdate(rngs[tid]);
-		const Individual & p2 = population->getBinaryTournamentNoUpdate(rngs[tid]);
-
-		crossoverOX(offspring[tid], p1, p2, rngs[tid]);
-		splits[tid].generalSplit(offspring[tid], params.nbVehicles);
-		localSearches[tid].run(offspring[tid], params.penaltyCapacity, params.penaltyDuration);
+		const Individual & p1 = population->getBinaryTournamentNoUpdate(rngs[i]);
+		const Individual & p2 = population->getBinaryTournamentNoUpdate(rngs[i]);
+		crossoverOX(offspring[i], p1, p2, rngs[i], i);
+		splits[tid].generalSplit(offspring[i], params.nbVehicles);
+		localSearches[tid].run(offspring[i], params.penaltyCapacity, params.penaltyDuration);
 	}
 
 	bool anyNewBest = false;
 	std::fill(needsRepair.begin(), needsRepair.end(), false);
-
-	for (int t = 0; t < numThreads; t++) {
-		bool isNewBest = population->addIndividual(offspring[t], true);
+	for (int i = 0; i < numOffspring; i++) 
+	{
+		bool isNewBest = population->addIndividual(offspring[i], true);
 		if (isNewBest) anyNewBest = true;
-
-		if (!offspring[t].eval.isFeasible && rngs[t]() % 2 == 0)
-			needsRepair[t] = true;
+		if (!offspring[i].eval.isFeasible && rngs[i]() % 2 == 0)
+			needsRepair[i] = true;
 	}
 
-#pragma omp parallel for
-	for (int t = 0; t < numThreads; t++) 
+#pragma omp parallel for schedule(dynamic)
+	for (int i = 0; i < numOffspring; i++)
 	{
-		if (!needsRepair[t]) continue;
-		localSearches[t].run(offspring[t], params.penaltyCapacity * 10., params.penaltyDuration * 10.);
+		if (!needsRepair[i]) continue;
+		int tid = omp_get_thread_num();
+		localSearches[tid].run(offspring[i], params.penaltyCapacity * 10., params.penaltyDuration * 10.);
 	}
 
-	for (int t = 0; t < numThreads; t++) 
+	for (int i = 0; i < numOffspring; i++)
 	{
-		if (!needsRepair[t]) continue;
-		if (offspring[t].eval.isFeasible) 
+		if (!needsRepair[i]) continue;
+		if (offspring[i].eval.isFeasible) 
 		{
-			if (population->addIndividual(offspring[t], false))
+			if (population->addIndividual(offspring[i], false))
 				anyNewBest = true;
 		}
 	}

@@ -1,4 +1,6 @@
 #include "Genetic.h"
+#include "StandardOffspringMaker.h"
+#include "ParallelOffspringMaker.h"
 
 void Genetic::run()
 {	
@@ -10,17 +12,7 @@ void Genetic::run()
 	if (params.verbose) std::cout << "----- STARTING GENETIC ALGORITHM" << std::endl;
 	for (nbIter = 0 ; nbIterNonProd <= params.ap.nbIter && (params.ap.timeLimit == 0 || (double)(clock()-params.startTime)/(double)CLOCKS_PER_SEC < params.ap.timeLimit) ; nbIter++)
 	{	
-		/* SELECTION AND CROSSOVER */
-		crossoverOX(offspring, population.getBinaryTournament(),population.getBinaryTournament());
-
-		/* LOCAL SEARCH */
-		localSearch.run(offspring, params.penaltyCapacity, params.penaltyDuration);
-		bool isNewBest = population.addIndividual(offspring,true);
-		if (!offspring.eval.isFeasible && params.ran()%2 == 0) // Repair half of the solutions in case of infeasibility
-		{
-			localSearch.run(offspring, params.penaltyCapacity*10., params.penaltyDuration*10.);
-			if (offspring.eval.isFeasible) isNewBest = (population.addIndividual(offspring,false) || isNewBest);
-		}
+		bool isNewBest = offspringMaker->makeOffspring();
 
 		/* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
 		if (isNewBest) nbIterNonProd = 1;
@@ -92,6 +84,15 @@ Genetic::Genetic(Params& params)
 	, offspring(params)
 	, islandModel(nullptr)
 {
+	switch (params.ap.makeManyOffspring) 
+	{
+	case 0:
+		offspringMaker = std::make_unique<StandardOffspringMaker>(params, population, localSearch, split);
+		break;
+	default:
+		offspringMaker = std::make_unique<ParallelOffspringMaker>(params, population, params.ap.numOffspring, params.ap.numThreadsOffspring);
+		break;
+	}
 }
 
 Genetic::Genetic(Params& params, IslandModel& islandModel)
@@ -102,4 +103,12 @@ Genetic::Genetic(Params& params, IslandModel& islandModel)
 	, offspring(params)
 	, islandModel(&islandModel)
 {
+	switch (params.ap.makeManyOffspring) {
+	case 0:
+		offspringMaker = std::make_unique<StandardOffspringMaker>(params, population, localSearch, split);
+		break;
+	default:
+		offspringMaker = std::make_unique<ParallelOffspringMaker>(params, population, params.ap.numOffspring, params.ap.numThreadsOffspring);
+		break;
+	}
 }

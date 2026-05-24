@@ -834,7 +834,8 @@ void LocalSearch::loadIndividual(const Individual & indiv)
 
 void LocalSearch::exportIndividual(Individual & indiv)
 {
-	std::vector < std::pair <double, int> > routePolarAngles ;
+	//std::vector < std::pair <double, int> > routePolarAngles ;
+	routePolarAngles.clear();
 	for (int r = 0; r < params.nbVehicles; r++)
 		routePolarAngles.push_back(std::pair <double, int>(routes[r].polarAngleBarycenter, r));
 	std::sort(routePolarAngles.begin(), routePolarAngles.end()); // empty routes have a polar angle of 1.e30, and therefore will always appear at the end
@@ -864,6 +865,7 @@ LocalSearch::LocalSearch(Params & params)
 	depots = std::vector < Node >(params.nbVehicles);
 	depotsEnd = std::vector < Node >(params.nbVehicles);
 	bestInsertClient = std::vector < std::vector <ThreeBestInsert> >(params.nbVehicles, std::vector <ThreeBestInsert>(params.nbClients + 1));
+	routePolarAngles.reserve(params.nbVehicles);
 
 	for (int i = 0; i <= params.nbClients; i++)
 	{

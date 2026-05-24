@@ -26,9 +26,11 @@ set(
     Program/IslandModels/IslandModel.cpp
     Program/IslandModels/IslandCommunicators/MPIIslandCommunicator.cpp
     Program/IslandModels/IslandCommunicators/SynchronousMPIIslandCommunicator.cpp
+    Program/MasterSlave/ParallelOffspringMaker.cpp
+    Program/MasterSlave/StandardOffspringMaker.cpp
 )
 
-include_directories(Program Program/IslandModels Program/IslandModels/ImmigrantHandlers Program/IslandModels/IslandCommunicators Program/IslandModels/MigrantSelectors Program/IslandModels/MigrationPolicies Program/IslandModels/Topologies)
+include_directories(Program Program/IslandModels Program/IslandModels/ImmigrantHandlers Program/IslandModels/IslandCommunicators Program/IslandModels/MigrantSelectors Program/IslandModels/MigrationPolicies Program/IslandModels/Topologies Program/MasterSlave)
 
 add_executable(bin Program/main.cpp ${src_files})
 set_target_properties(bin PROPERTIES

@@ -4,6 +4,7 @@
 
 #include "AlgorithmParameters.h"
 #include <iostream>
+#include <omp.h>
 
 extern "C"
 struct AlgorithmParameters default_algorithm_parameters() {
@@ -49,6 +50,10 @@ struct AlgorithmParameters default_algorithm_parameters() {
 
 	ap.islandCommunicator = 0;
 
+	ap.makeManyOffspring = 0;
+	ap.numOffspring = omp_get_max_threads();
+	ap.numThreadsOffspring = omp_get_max_threads();
+
 	return ap;
 }
 
@@ -71,6 +76,9 @@ void print_algorithm_parameters(const AlgorithmParameters & ap)
 	std::cout << "---- useSwapStar             is set to " << ap.useSwapStar << std::endl;
 	std::cout << "---- useGpu                  is set to " << ap.useGpu << std::endl;
 	std::cout << "---- useOpenMp               is set to " << ap.useOpenMp << std::endl;
+	std::cout << "---- makeManyOffspring	   is set to " << ap.makeManyOffspring << std::endl;
+	std::cout << "---- numOffspring			   is set to " << ap.numOffspring << std::endl;
+	std::cout << "---- numThreadsOffspring	   is set to " << ap.numThreadsOffspring << std::endl;
 	std::cout << "==================================================" << std::endl;
 
 	std::cout << "=========== Island Model Parameters ==============" << std::endl;

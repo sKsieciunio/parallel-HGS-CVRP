@@ -85,7 +85,7 @@ public:
 				else if (std::string(argv[i]) == "-penaltyIncrease")
 					ap.penaltyIncrease = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-penaltyDecrease")
-					ap.penaltyDecrease = atof(argv[i+1]);
+					ap.penaltyDecrease = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-island")
 					ap.useIslandModel = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-topology")
@@ -116,6 +116,12 @@ public:
 					ap.useGpu = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-openMP")
 					ap.useOpenMp = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-makeManyOffspring")
+					ap.makeManyOffspring = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-numOffspring")
+					ap.numOffspring = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-numThreadsOffspring")
+					ap.numThreadsOffspring = atoi(argv[i + 1]);
 				else
 				{
 					std::cout << "----- ARGUMENT NOT RECOGNIZED: " << std::string(argv[i]) << std::endl;

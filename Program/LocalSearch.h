@@ -173,6 +173,7 @@ private:
 	double serviceU, serviceX, serviceV, serviceY;
 	double penaltyCapacityLS, penaltyDurationLS ;
 	bool intraRouteMove ;
+	std::vector<std::pair<double, int>> routePolarAngles;
 
 	void setLocalVariablesRouteU(); // Initializes some local variables and distances associated to routeU to avoid always querying the same values in the distance matrix
 	void setLocalVariablesRouteV(); // Initializes some local variables and distances associated to routeV to avoid always querying the same values in the distance matrix

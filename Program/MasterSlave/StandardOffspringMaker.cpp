@@ -6,7 +6,6 @@ bool StandardOffspringMaker::makeOffspring()
 	const Individual & p2 = population.getBinaryTournament();
 
 	crossoverOX(offspring, p1, p2);
-	split.generalSplit(offspring, p1.eval.nbRoutes);
 	localSearch.run(offspring, params.penaltyCapacity, params.penaltyDuration);
 
 	bool isNewBest = population.addIndividual(offspring, true);
@@ -23,11 +22,9 @@ bool StandardOffspringMaker::makeOffspring()
 
 void StandardOffspringMaker::crossoverOX(Individual& result, const Individual& parent1, const Individual& parent2)
 {
-	// Frequency table to track the customers which have been already inserted
-	std::vector<bool> freqClient = std::vector<bool>(params.nbClients + 1, false);
+	std::fill(freqClient.begin(), freqClient.end(), false); 
 
 	// Picking the beginning and end of the crossover zone
-	std::uniform_int_distribution<> distr(0, params.nbClients - 1);
 	int start = distr(params.ran);
 	int end = distr(params.ran);
 

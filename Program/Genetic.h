@@ -26,6 +26,7 @@ SOFTWARE.*/
 #include "Population.h"
 #include "Individual.h"
 #include "IslandModel.h"
+#include "OffspringMaker.h"
 
 class Genetic
 {
@@ -48,6 +49,8 @@ public:
 
 	IslandModel* islandModel;
 	Genetic(Params& params, IslandModel& islandModel_);
+
+	std::unique_ptr<OffspringMaker> offspringMaker;
 };
 
 #endif

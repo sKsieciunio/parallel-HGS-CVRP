@@ -44,6 +44,8 @@ class Population
    Individual bestSolutionRestart;              // Best solution found during the current restart of the algorithm
    Individual bestSolutionOverall;              // Best solution found during the complete execution of the algorithm
 
+   std::vector<std::pair<double, int>> ranking;	// Used in updateBiasedFitness
+
    // Evaluates the biased fitness of all individuals in the population
    void updateBiasedFitnesses(SubPopulation & pop);
 
@@ -114,7 +116,7 @@ class Population
       return infeasibleSubpop;
    }
 
-   void UpdateAllBiasedFitness() 
+   void updateAllBiasedFitnesses() 
    {
 	   updateBiasedFitnesses(infeasibleSubpop);
 	   updateBiasedFitnesses(feasibleSubpop);
