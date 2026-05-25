@@ -80,7 +80,10 @@ __device__ void findBestInsert(
 //   [P1 + lenU*8               ] double sDeltaV[lenV]
 //   [P2 (8-byte aligned)        ] GpuSwapStarResult sReduce[BLOCK_SIZE]
 // ---------------------------------------------------------------------------
-__global__ void evalSwapStarKernel(
+// minBlocksPerSM=6 targets <=42 registers/thread, pushing occupancy toward 100%.
+// If the compiler cannot reach that without excessive spilling it will use the
+// next feasible value (currently 4 blocks / 64 registers), so this is safe.
+__global__ __launch_bounds__(256, 6) void evalSwapStarKernel(
     const int*    __restrict__ routeStart,
     const int*    __restrict__ routeLen,
     const double* __restrict__ routeDuration,

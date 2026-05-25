@@ -7,7 +7,10 @@
 #include <cuda_runtime.h>
 #include <algorithm>
 #include <cstdio>
+#include <cstring>
 #include <vector>
+
+static size_t align8(size_t x) { return (x + 7u) & ~7u; }
 
 // ---------------------------------------------------------------------------
 // Error checking helpers
@@ -47,27 +50,43 @@ public:
     int    nbVehicles_;
     double vehicleCapacity_;
     double durationLimit_;
+    int    maxPairs_;
 
     // ---- Device buffers — problem data (uploaded once in constructor) ----
-    double* d_timeCost_;       // (nbClients+1)^2  row-major
-    double* d_demand_;         // nbClients+1
-    double* d_service_;        // nbClients+1
+    double* d_timeCost_;   // (nbClients+1)^2  row-major
+    double* d_demand_;     // nbClients+1
+    double* d_service_;    // nbClients+1
 
-    // ---- Device buffers — route data (re-uploaded each call) ----
-    int*    d_routeStart_;     // nbVehicles
-    int*    d_routeLen_;       // nbVehicles
-    double* d_routeDuration_;  // nbVehicles
-    double* d_routeLoad_;      // nbVehicles
-    double* d_routePenalty_;   // nbVehicles
-    int*    d_routeCustomers_; // nbClients  (packed, depot excluded)
-    double* d_deltaRemoval_;   // nbClients
+    // ---- Single flat buffer for all per-call route + pair data ----
+    // Host side is pinned (cudaMallocHost) for lower transfer latency.
+    // Device sub-pointers are set once at init and never change.
+    char*   h_routeFlat_;   // pinned host staging buffer
+    char*   d_routeFlat_;   // device mirror
+    size_t  flatSize_;      // total bytes
 
-    // ---- Device buffers — pairs and results ----
-    int*               d_pairU_;    // maxPairs
-    int*               d_pairV_;    // maxPairs
-    GpuSwapStarResult* d_results_;  // maxPairs
+    // Byte offsets into the flat buffer for each logical array
+    size_t off_routeDuration_;
+    size_t off_routeLoad_;
+    size_t off_routePenalty_;
+    size_t off_deltaRemoval_;
+    size_t off_routeStart_;
+    size_t off_routeLen_;
+    size_t off_routeCustomers_;
+    size_t off_pairU_;
+    size_t off_pairV_;
 
-    int maxPairs_;
+    // Device sub-pointers (point into d_routeFlat_; set once at init)
+    double* d_routeDuration_;
+    double* d_routeLoad_;
+    double* d_routePenalty_;
+    double* d_deltaRemoval_;
+    int*    d_routeStart_;
+    int*    d_routeLen_;
+    int*    d_routeCustomers_;
+    int*    d_pairU_;
+    int*    d_pairV_;
+
+    GpuSwapStarResult* d_results_;  // maxPairs — separate allocation
 
     GpuLocalSearch() = default;
 
@@ -91,16 +110,18 @@ public:
     {
         if (numPairs == 0) return false;
 
-        // Upload route data
-        CUDA_CHECK(cudaMemcpy(d_routeStart_,    routeStart,    nbVehicles_ * sizeof(int),    cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_routeLen_,      routeLen,      nbVehicles_ * sizeof(int),    cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_routeDuration_, routeDuration, nbVehicles_ * sizeof(double), cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_routeLoad_,     routeLoad,     nbVehicles_ * sizeof(double), cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_routePenalty_,  routePenalty,  nbVehicles_ * sizeof(double), cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_routeCustomers_,routeCustomers,nbClients_  * sizeof(int),    cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_deltaRemoval_,  deltaRemoval,  nbClients_  * sizeof(double), cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_pairU_, pairU, numPairs * sizeof(int), cudaMemcpyHostToDevice));
-        CUDA_CHECK(cudaMemcpy(d_pairV_, pairV, numPairs * sizeof(int), cudaMemcpyHostToDevice));
+        // Pack all per-call arrays into the pinned host staging buffer,
+        // then upload with a single cudaMemcpy instead of 9 separate ones.
+        std::memcpy(h_routeFlat_ + off_routeDuration_,  routeDuration,  nbVehicles_ * sizeof(double));
+        std::memcpy(h_routeFlat_ + off_routeLoad_,      routeLoad,      nbVehicles_ * sizeof(double));
+        std::memcpy(h_routeFlat_ + off_routePenalty_,   routePenalty,   nbVehicles_ * sizeof(double));
+        std::memcpy(h_routeFlat_ + off_deltaRemoval_,   deltaRemoval,   nbClients_  * sizeof(double));
+        std::memcpy(h_routeFlat_ + off_routeStart_,     routeStart,     nbVehicles_ * sizeof(int));
+        std::memcpy(h_routeFlat_ + off_routeLen_,       routeLen,       nbVehicles_ * sizeof(int));
+        std::memcpy(h_routeFlat_ + off_routeCustomers_, routeCustomers, nbClients_  * sizeof(int));
+        std::memcpy(h_routeFlat_ + off_pairU_,          pairU,          numPairs    * sizeof(int));
+        std::memcpy(h_routeFlat_ + off_pairV_,          pairV,          numPairs    * sizeof(int));
+        CUDA_CHECK(cudaMemcpy(d_routeFlat_, h_routeFlat_, flatSize_, cudaMemcpyHostToDevice));
 
         // Compute max route length to size shared memory
         const int maxLen = *std::max_element(routeLen, routeLen + nbVehicles_);
@@ -172,21 +193,39 @@ GpuLocalSearch* createGpuLocalSearch(
     const int maxPairs = nbVehicles * (nbVehicles - 1) / 2;
     ls->maxPairs_ = maxPairs;
 
-    // ---- Allocate device memory ----
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_timeCost_,       (size_t)n * n           * sizeof(double)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_demand_,         (size_t)n               * sizeof(double)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_service_,        (size_t)n               * sizeof(double)));
+    // ---- Allocate static device memory (uploaded once) ----
+    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_timeCost_, (size_t)n * n * sizeof(double)));
+    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_demand_,   (size_t)n     * sizeof(double)));
+    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_service_,  (size_t)n     * sizeof(double)));
 
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routeStart_,     (size_t)nbVehicles      * sizeof(int)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routeLen_,       (size_t)nbVehicles      * sizeof(int)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routeDuration_,  (size_t)nbVehicles      * sizeof(double)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routeLoad_,      (size_t)nbVehicles      * sizeof(double)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routePenalty_,   (size_t)nbVehicles      * sizeof(double)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_routeCustomers_, (size_t)nbClients       * sizeof(int)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_deltaRemoval_,   (size_t)nbClients       * sizeof(double)));
+    // ---- Build flat buffer layout (doubles first for natural alignment) ----
+    size_t off = 0;
+    ls->off_routeDuration_  = off; off += align8((size_t)nbVehicles * sizeof(double));
+    ls->off_routeLoad_      = off; off += align8((size_t)nbVehicles * sizeof(double));
+    ls->off_routePenalty_   = off; off += align8((size_t)nbVehicles * sizeof(double));
+    ls->off_deltaRemoval_   = off; off += align8((size_t)nbClients  * sizeof(double));
+    ls->off_routeStart_     = off; off += align8((size_t)nbVehicles * sizeof(int));
+    ls->off_routeLen_       = off; off += align8((size_t)nbVehicles * sizeof(int));
+    ls->off_routeCustomers_ = off; off += align8((size_t)nbClients  * sizeof(int));
+    ls->off_pairU_          = off; off += align8((size_t)maxPairs   * sizeof(int));
+    ls->off_pairV_          = off; off += align8((size_t)maxPairs   * sizeof(int));
+    ls->flatSize_ = off;
 
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_pairU_,   (size_t)maxPairs * sizeof(int)));
-    CUDA_CHECK_RETURN(cudaMalloc(&ls->d_pairV_,   (size_t)maxPairs * sizeof(int)));
+    // Pinned host staging buffer + matching device buffer
+    CUDA_CHECK_RETURN(cudaMallocHost(&ls->h_routeFlat_, ls->flatSize_));
+    CUDA_CHECK_RETURN(cudaMalloc    (&ls->d_routeFlat_, ls->flatSize_));
+
+    // Set device sub-pointers once; they remain valid for the object lifetime
+    ls->d_routeDuration_  = (double*)(ls->d_routeFlat_ + ls->off_routeDuration_);
+    ls->d_routeLoad_      = (double*)(ls->d_routeFlat_ + ls->off_routeLoad_);
+    ls->d_routePenalty_   = (double*)(ls->d_routeFlat_ + ls->off_routePenalty_);
+    ls->d_deltaRemoval_   = (double*)(ls->d_routeFlat_ + ls->off_deltaRemoval_);
+    ls->d_routeStart_     = (int*)   (ls->d_routeFlat_ + ls->off_routeStart_);
+    ls->d_routeLen_       = (int*)   (ls->d_routeFlat_ + ls->off_routeLen_);
+    ls->d_routeCustomers_ = (int*)   (ls->d_routeFlat_ + ls->off_routeCustomers_);
+    ls->d_pairU_          = (int*)   (ls->d_routeFlat_ + ls->off_pairU_);
+    ls->d_pairV_          = (int*)   (ls->d_routeFlat_ + ls->off_pairV_);
+
     CUDA_CHECK_RETURN(cudaMalloc(&ls->d_results_, (size_t)maxPairs * sizeof(GpuSwapStarResult)));
 
     // ---- Upload static problem data ----
@@ -206,15 +245,8 @@ void destroyGpuLocalSearch(GpuLocalSearch* ls)
     cudaFree(ls->d_timeCost_);
     cudaFree(ls->d_demand_);
     cudaFree(ls->d_service_);
-    cudaFree(ls->d_routeStart_);
-    cudaFree(ls->d_routeLen_);
-    cudaFree(ls->d_routeDuration_);
-    cudaFree(ls->d_routeLoad_);
-    cudaFree(ls->d_routePenalty_);
-    cudaFree(ls->d_routeCustomers_);
-    cudaFree(ls->d_deltaRemoval_);
-    cudaFree(ls->d_pairU_);
-    cudaFree(ls->d_pairV_);
+    cudaFreeHost(ls->h_routeFlat_);
+    cudaFree(ls->d_routeFlat_);
     cudaFree(ls->d_results_);
     delete ls;
 }

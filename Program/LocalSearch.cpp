@@ -83,6 +83,7 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 				   This amortises kernel-launch and transfer overhead: O(outer-loop
 				   iterations) launches per LS call instead of O(total moves). */
 				flattenRoutesForGpu();
+				const int nbMovesBeforeGpu = nbMoves;
 				int numPairs = buildGpuRoutePairs();
 				if (numPairs > 0 &&
 				    gpuEvaluateSwapStar(
@@ -112,6 +113,8 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 						searchCompleted = false;
 					}
 				}
+				// Update cutoff so the next call skips pairs unchanged since now.
+				gpuSwapStarLastNbMoves_ = nbMovesBeforeGpu;
 			}
 			else if (params.ap.useOpenMp && ompLS_ != nullptr)
 			{
@@ -827,6 +830,7 @@ void LocalSearch::loadIndividual(const Individual & indiv)
 		}
 		updateRouteData(&routes[r]);
 		routes[r].whenLastTestedSWAPStar = -1;
+		gpuSwapStarLastNbMoves_ = -1;
 		for (int i = 1; i <= params.nbClients; i++) // Initializing memory structures
 			bestInsertClient[r][i].whenLastCalculated = -1;
 	}
@@ -861,7 +865,7 @@ void LocalSearch::exportIndividual(Individual & indiv)
 }
 
 LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_)
-	: params(params), gpuLS_(nullptr), ompLS_(nullptr), routeTouched_(params.nbVehicles, false), rng(rng_)
+	: params(params), gpuLS_(nullptr), gpuSwapStarLastNbMoves_(-1), ompLS_(nullptr), routeTouched_(params.nbVehicles, false), rng(rng_)
 {
 	clients = std::vector<Node>(params.nbClients + 1);
 	routes = std::vector<Route>(params.nbVehicles);
@@ -983,6 +987,9 @@ int LocalSearch::buildGpuRoutePairs()
 		{
 			if (routes[rV].nbCustomers == 0) continue;
 			if (!CircleSector::overlap(routes[rU].sector, routes[rV].sector)) continue;
+			if (loopID > 0 && std::max(routes[rU].whenLastModified, routes[rV].whenLastModified)
+			        <= gpuSwapStarLastNbMoves_)
+				continue;
 			gpuPairU_[numPairs] = rU;
 			gpuPairV_[numPairs] = rV;
 			numPairs++;
