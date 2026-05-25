@@ -307,7 +307,7 @@ Population::~Population()
 	for (int i = 0; i < (int)infeasibleSubpop.size(); i++) delete infeasibleSubpop[i];
 }
 
-const Individual & Population::getBinaryTournamentNoUpdate(std::minstd_rand rng)
+const Individual & Population::getBinaryTournamentNoUpdate(std::minstd_rand& rng)
 {
 	std::uniform_int_distribution<> distr(0, feasibleSubpop.size() + infeasibleSubpop.size() - 1);
 	int place1 = distr(rng);

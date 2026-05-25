@@ -121,6 +121,7 @@ private:
 	std::vector < int > orderRoutes;			// Randomized order for checking the routes in the SWAP* local search
 	std::set < int > emptyRoutes;				// indices of all empty routes
 	int loopID;									// Current loop index
+	std::minstd_rand rng;
 
 	/* THE SOLUTION IS REPRESENTED AS A LINKED LIST OF ELEMENTS */
 	std::vector < Node > clients;				// Elements representing clients (clients[0] is a sentinel and should not be accessed)
@@ -220,6 +221,7 @@ private:
 
 	// Constructor / destructor
 	LocalSearch(Params & params);
+	LocalSearch(Params & params, std::minstd_rand rng_);
 	~LocalSearch();
 };
 

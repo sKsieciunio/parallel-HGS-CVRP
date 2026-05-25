@@ -122,7 +122,7 @@ class Population
 	   updateBiasedFitnesses(feasibleSubpop);
    }
 
-   const Individual & getBinaryTournamentNoUpdate();
+   const Individual & getBinaryTournamentNoUpdate(std::minstd_rand& rng);
 };
 
 #endif

@@ -7,11 +7,14 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 	loadIndividual(indiv);
 
 	// Shuffling the order of the nodes explored by the LS to allow for more diversity in the search
-	std::shuffle(orderNodes.begin(), orderNodes.end(), params.ran);
-	std::shuffle(orderRoutes.begin(), orderRoutes.end(), params.ran);
-	for (int i = 1; i <= params.nbClients; i++)
-		if (params.ran() % params.ap.nbGranular == 0)  // O(n/nbGranular) calls to the inner function on average, to achieve linear-time complexity overall
-			std::shuffle(params.correlatedVertices[i].begin(), params.correlatedVertices[i].end(), params.ran);
+	std::shuffle(orderNodes.begin(), orderNodes.end(), rng);
+	std::shuffle(orderRoutes.begin(), orderRoutes.end(), rng);
+	if (!params.ap.makeManyOffspring) 
+	{
+		for (int i = 1; i <= params.nbClients; i++)
+			if (rng() % params.ap.nbGranular == 0)  // O(n/nbGranular) calls to the inner function on average, to achieve linear-time complexity overall
+				std::shuffle(params.correlatedVertices[i].begin(), params.correlatedVertices[i].end(), rng);
+	}
 
 	searchCompleted = false;
 	for (loopID = 0; !searchCompleted; loopID++)
@@ -857,23 +860,21 @@ void LocalSearch::exportIndividual(Individual & indiv)
 	indiv.evaluateCompleteCost(params);
 }
 
-LocalSearch::LocalSearch(Params & params)
-	: params(params), gpuLS_(nullptr), ompLS_(nullptr), routeTouched_(params.nbVehicles, false)
+LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_)
+	: params(params), gpuLS_(nullptr), ompLS_(nullptr), routeTouched_(params.nbVehicles, false), rng(rng_)
 {
-	clients = std::vector < Node >(params.nbClients + 1);
-	routes = std::vector < Route >(params.nbVehicles);
-	depots = std::vector < Node >(params.nbVehicles);
-	depotsEnd = std::vector < Node >(params.nbVehicles);
-	bestInsertClient = std::vector < std::vector <ThreeBestInsert> >(params.nbVehicles, std::vector <ThreeBestInsert>(params.nbClients + 1));
+	clients = std::vector<Node>(params.nbClients + 1);
+	routes = std::vector<Route>(params.nbVehicles);
+	depots = std::vector<Node>(params.nbVehicles);
+	depotsEnd = std::vector<Node>(params.nbVehicles);
+	bestInsertClient = std::vector<std::vector<ThreeBestInsert>>(params.nbVehicles, std::vector<ThreeBestInsert>(params.nbClients + 1));
 	routePolarAngles.reserve(params.nbVehicles);
 
-	for (int i = 0; i <= params.nbClients; i++)
-	{
+	for (int i = 0; i <= params.nbClients; i++) {
 		clients[i].cour = i;
 		clients[i].isDepot = false;
 	}
-	for (int i = 0; i < params.nbVehicles; i++)
-	{
+	for (int i = 0; i < params.nbVehicles; i++) {
 		routes[i].cour = i;
 		routes[i].depot = &depots[i];
 		depots[i].cour = 0;
@@ -883,12 +884,13 @@ LocalSearch::LocalSearch(Params & params)
 		depotsEnd[i].isDepot = true;
 		depotsEnd[i].route = &routes[i];
 	}
-	for (int i = 1 ; i <= params.nbClients ; i++) orderNodes.push_back(i);
-	for (int r = 0 ; r < params.nbVehicles ; r++) orderRoutes.push_back(r);
+	for (int i = 1; i <= params.nbClients; i++)
+		orderNodes.push_back(i);
+	for (int r = 0; r < params.nbVehicles; r++)
+		orderRoutes.push_back(r);
 
 	// GPU initialisation (only when requested)
-	if (params.ap.useGpu)
-	{
+	if (params.ap.useGpu) {
 		const int n = params.nbClients + 1;
 		std::vector<double> timeCostFlat((size_t)n * n);
 		for (int i = 0; i < n; i++)
@@ -896,9 +898,8 @@ LocalSearch::LocalSearch(Params & params)
 				timeCostFlat[(size_t)i * n + j] = params.timeCost[i][j];
 
 		std::vector<double> demand(n), service(n);
-		for (int i = 0; i < n; i++)
-		{
-			demand[i]  = params.cli[i].demand;
+		for (int i = 0; i < n; i++) {
+			demand[i] = params.cli[i].demand;
 			service[i] = params.cli[i].serviceDuration;
 		}
 
@@ -914,22 +915,26 @@ LocalSearch::LocalSearch(Params & params)
 		const int V = params.nbVehicles;
 		const int N = params.nbClients;
 		const int maxPairs = V * (V - 1) / 2;
-		gpuRouteStart_   .resize(V);
-		gpuRouteLen_     .resize(V);
+		gpuRouteStart_.resize(V);
+		gpuRouteLen_.resize(V);
 		gpuRouteDuration_.resize(V);
-		gpuRouteLoad_    .resize(V);
-		gpuRoutePenalty_ .resize(V);
+		gpuRouteLoad_.resize(V);
+		gpuRoutePenalty_.resize(V);
 		gpuRouteCustomers_.resize(N);
-		gpuDeltaRemoval_ .resize(N);
-		gpuPairU_        .resize(maxPairs);
-		gpuPairV_        .resize(maxPairs);
-		gpuAllResults_   .resize(maxPairs);
+		gpuDeltaRemoval_.resize(N);
+		gpuPairU_.resize(maxPairs);
+		gpuPairV_.resize(maxPairs);
+		gpuAllResults_.resize(maxPairs);
 	}
 
-	if (params.ap.useOpenMp)
-	{
+	if (params.ap.useOpenMp) {
 		ompLS_ = new OpenMPLocalSearch(params);
 	}
+}
+
+LocalSearch::LocalSearch(Params & params)
+	: LocalSearch(params, params.ran)
+{
 }
 
 LocalSearch::~LocalSearch()

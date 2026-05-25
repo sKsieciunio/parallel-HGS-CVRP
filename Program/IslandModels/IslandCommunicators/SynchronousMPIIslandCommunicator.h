@@ -23,12 +23,7 @@ private:
     static const int TAG_BEST = 1;
 
 public:
-    SynchronousMPIIslandCommunicator(Params& params) : params(params) 
-    {
-        MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-        MPI_Comm_size(MPI_COMM_WORLD, &size);
-        recvBuf.resize(params.nbClients);
-    }
+	SynchronousMPIIslandCommunicator(Params & params);
 
     void sendMigrants(const std::vector<Individual*>& migrants, const std::vector<int>& destinations) override;
     std::vector<Individual> tryReceiveMigrants() override;
