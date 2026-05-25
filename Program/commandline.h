@@ -116,6 +116,8 @@ public:
 					ap.useGpu = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-openMP")
 					ap.useOpenMp = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-omplsnt")
+					ap.omplsnt = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-makeManyOffspring")
 					ap.makeManyOffspring = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-numOffspring")

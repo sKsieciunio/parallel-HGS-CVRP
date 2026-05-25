@@ -3,7 +3,7 @@
 
 OpenMPLocalSearch::OpenMPLocalSearch(Params& params) : params(params)
 {
-	nThreads = omp_get_max_threads();
+	nThreads = params.ap.omplsnt;
 	threadBestInsert.resize(nThreads,
 		std::vector<std::vector<ThreeBestInsert>>(
 			params.nbVehicles,
@@ -64,7 +64,7 @@ bool OpenMPLocalSearch::runSwapStar(
 	// Evaluate all pairs in parallel
 	results.resize(qualifyingPairs.size());
 
-#pragma omp parallel for schedule(dynamic)
+#pragma omp parallel for schedule(dynamic) num_threads(nThreads)
 	for (int p = 0; p < (int)qualifyingPairs.size(); p++)
 	{
 		int tid = omp_get_thread_num();

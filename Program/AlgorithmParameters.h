@@ -48,6 +48,7 @@ struct AlgorithmParameters {
 	int useGpu;				// Use GPU acceleration for SWAP* evaluation. Default value: 0.
 
 	int useOpenMp;			// Use OpenMP parallelization for local search. Default value: 0.
+	int omplsnt;			// Number of threads to use per OpenMPLocalSearch. Default value: omp_get_max_threads().
 
 	int makeManyOffspring;					// Use OpenMP parallelization for offspring production. Default value: 0.
 	int numOffspring;						// Number of offspring made in one iteration. Requires makeManyOffspring. Default value: omp_get_max_threads().
