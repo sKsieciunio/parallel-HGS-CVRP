@@ -142,6 +142,7 @@ private:
 	std::vector<int>    gpuPairU_;
 	std::vector<int>    gpuPairV_;
 	std::vector<GpuSwapStarResult> gpuAllResults_;   // per-pair results buffer
+	int gpuSwapStarLastNbMoves_;  // nbMoves snapshot from the previous GPU SWAP* call; used to skip pairs where neither route changed since then
 
 	// Pack current linked-list routes into the flat GPU buffers.
 	void flattenRoutesForGpu();
