@@ -1,6 +1,7 @@
 #ifndef PARALLEL_OFFSPRING_MAKER_H
 #define PARALLEL_OFFSPRING_MAKER_H
 #include "OffspringMaker.h"
+#include <memory>
 
 class ParallelOffspringMaker : public OffspringMaker
 {

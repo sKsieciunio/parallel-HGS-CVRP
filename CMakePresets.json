@@ -2,31 +2,49 @@
     "version": 3,
     "configurePresets": [
         {
-            "name": "base",
+            "name": "base-windows",
             "hidden": true,
             "generator": "Visual Studio 18 2026",
             "architecture": "x64",
             "toolset": "cuda=12.6",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-		"CMAKE_BUILD_TYPE": "Debug",
                 "CMAKE_CUDA_ARCHITECTURES": "61"
             }
         },
         {
             "name": "debug",
-            "displayName": "Debug",
-            "inherits": "base"
+            "displayName": "Debug (Windows)",
+            "inherits": "base-windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
         },
         {
             "name": "release",
-            "displayName": "Release",
-            "inherits": "base"
+            "displayName": "Release (Windows)",
+            "inherits": "base-windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
         },
         {
             "name": "relwithdebinfo",
-            "displayName": "RelWithDebInfo",
-            "inherits": "base"
+            "displayName": "RelWithDebInfo (Windows)",
+            "inherits": "base-windows",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "RelWithDebInfo"
+            }
+        },
+        {
+            "name": "cluster",
+            "displayName": "Cluster (Linux/Make)",
+            "generator": "Unix Makefiles",
+            "binaryDir": "${sourceDir}/build/cluster",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release",
+                "CMAKE_CUDA_ARCHITECTURES": "80"
+            }
         }
     ],
     "buildPresets": [
@@ -44,6 +62,10 @@
             "name": "relwithdebinfo",
             "configurePreset": "relwithdebinfo",
             "configuration": "RelWithDebInfo"
+        },
+        {
+            "name": "cluster",
+            "configurePreset": "cluster"
         }
-    ] 
+    ]
 }
