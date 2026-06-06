@@ -19,7 +19,13 @@ public:
     IslandState islandState;
     IslandModel(Params& params);
 
-    void updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement);
+    static std::unique_ptr<IslandCommunicator> makeCommunicator(Params& params);
+    static std::unique_ptr<Topology> makeTopology(const Params& params, int rank);
+    static std::unique_ptr<MigrationPolicy> makeMigrationPolicy(const Params& params);
+    static std::unique_ptr<MigrantSelector> makeMigrantSelector(const Params& params);
+    static std::unique_ptr<ImmigrantHandler> makeImmigrantHandler(const Params& params);
+
+    void updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement, double diversity);
     void handleMigrations(Population& population, Split& split, LocalSearch& localSearch, Params& params);
     bool getBestSolution(Population& population, Split& split, Params& params, Individual& bestOut);
 };

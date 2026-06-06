@@ -8,8 +8,8 @@ class ParallelOffspringMaker : public OffspringMaker
   public:
 	Params & params;
 	Population & population;
-	int numThreads;
 	int numOffspring;
+	int numThreads;
 
 	std::vector<std::unique_ptr<LocalSearch>> localSearches;
 	std::vector < std::unique_ptr<Split>> splits;

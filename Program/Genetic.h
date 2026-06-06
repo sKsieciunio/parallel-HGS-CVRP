@@ -51,6 +51,9 @@ public:
 	Genetic(Params& params, IslandModel& islandModel_);
 
 	std::unique_ptr<OffspringMaker> offspringMaker;
+
+private:
+	Genetic(Params& params, IslandModel* islandModel_);
 };
 
 #endif

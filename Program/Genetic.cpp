@@ -30,9 +30,10 @@ void Genetic::run()
 		}
 
 		/* MIGRATIONS */
-		if (islandModel != nullptr) 
+		if (islandModel != nullptr)
 		{
-			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter);
+			double diversity = population.getDiversity(population.getFeasibleSubpop());
+			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter, diversity);
 			islandModel->handleMigrations(population, split, localSearch, params);
 		}
 	}
@@ -77,33 +78,25 @@ void Genetic::crossoverOX(Individual & result, const Individual & parent1, const
 }
 
 Genetic::Genetic(Params& params)
-	: params(params)
-	, split(params)
-	, localSearch(params)
-	, population(params, this->split, this->localSearch)
-	, offspring(params)
-	, islandModel(nullptr)
+	: Genetic(params, static_cast<IslandModel*>(nullptr))
 {
-	switch (params.ap.makeManyOffspring) 
-	{
-	case 0:
-		offspringMaker = std::make_unique<StandardOffspringMaker>(params, population, localSearch, split);
-		break;
-	default:
-		offspringMaker = std::make_unique<ParallelOffspringMaker>(params, population, params.ap.numOffspring, params.ap.numThreadsOffspring);
-		break;
-	}
 }
 
-Genetic::Genetic(Params& params, IslandModel& islandModel)
+Genetic::Genetic(Params& params, IslandModel& islandModel_)
+	: Genetic(params, &islandModel_)
+{
+}
+
+Genetic::Genetic(Params& params, IslandModel* islandModel_)
 	: params(params)
 	, split(params)
 	, localSearch(params)
 	, population(params, this->split, this->localSearch)
 	, offspring(params)
-	, islandModel(&islandModel)
+	, islandModel(islandModel_)
 {
-	switch (params.ap.makeManyOffspring) {
+	switch (params.ap.makeManyOffspring)
+	{
 	case 0:
 		offspringMaker = std::make_unique<StandardOffspringMaker>(params, population, localSearch, split);
 		break;

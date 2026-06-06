@@ -2,89 +2,88 @@
 #include "../IslandCommunicators/MPIIslandCommunicator.h"
 #include "../IslandCommunicators/SynchronousMPIIslandCommunicator.h"
 
-IslandModel::IslandModel(Params& params)
+std::unique_ptr<IslandCommunicator> IslandModel::makeCommunicator(Params& params)
 {
+#ifdef USE_MPI
     switch (params.ap.islandCommunicator)
     {
+    case 1:  return std::make_unique<SynchronousMPIIslandCommunicator>(params);
     case 0:
-#ifdef USE_MPI
-        islandCommunicator = std::make_unique<MPIIslandCommunicator>(params);
-#else
-        throw std::string("MPI communicator requested but MPI not available.");
-#endif
-        break;
-    case 1:
-#ifdef USE_MPI
-        islandCommunicator = std::make_unique<SynchronousMPIIslandCommunicator>(params);
-#else
-        throw std::string("MPI communicator requested but MPI not available.");
-#endif
-        break;
-    default:
-#ifdef USE_MPI
-        islandCommunicator = std::make_unique<MPIIslandCommunicator>(params);
-#else
-        throw std::string("MPI communicator requested but MPI not available.");
-#endif
-        break;
+    default: return std::make_unique<MPIIslandCommunicator>(params);
     }
+#else
+    throw std::string("MPI communicator requested but MPI not available.");
+#endif
+}
 
-    int rank = islandCommunicator->getRank();
+std::unique_ptr<Topology> IslandModel::makeTopology(const Params& params, int rank)
+{
     int nIslands = params.ap.nbNodes;
-
-    switch (params.ap.topology) 
+    switch (params.ap.topology)
     {
-    case 0: topology = std::make_unique<RingTopology>(nIslands, rank); break;
-    case 1: topology = std::make_unique<TwoSidedRing>(nIslands, rank); break;
-    case 2: topology = std::make_unique<Hypercube>(nIslands, rank); break;
-    case 3: topology = std::make_unique<StarTopology>(nIslands, rank); break;
-    case 4: topology = std::make_unique<FullGraphTopology>(nIslands, rank); break;
-    default: topology = std::make_unique<RingTopology>(nIslands, rank); break;
+    case 1:  return std::make_unique<TwoSidedRing>(nIslands, rank);
+    case 2:  return std::make_unique<Hypercube>(nIslands, rank);
+    case 3:  return std::make_unique<StarTopology>(nIslands, rank);
+    case 4:  return std::make_unique<FullGraphTopology>(nIslands, rank);
+    case 5:  return std::make_unique<RandomRegularTopology>(nIslands, rank, params.ap.topologyDegree, (unsigned)params.ap.seed);
+    case 0:
+    default: return std::make_unique<RingTopology>(nIslands, rank);
     }
+}
 
+std::unique_ptr<MigrationPolicy> IslandModel::makeMigrationPolicy(const Params& params)
+{
     switch (params.ap.migrationPolicy)
     {
+    case 1:  return std::make_unique<ImprovementTriggeredMigrationPolicy>(params.ap.warmup, params.ap.sendCooldown, params.ap.receiveStagnationThreshold);
+    case 2:  return std::make_unique<AdaptiveMigrationPolicy>(params.ap.sendCooldown, params.ap.minReceiveInterval, params.ap.maxReceiveInterval, params.ap.warmup);
+    case 3:  return std::make_unique<DiversityDrivenMigrationPolicy>(params.ap.sendCooldown, params.ap.minReceiveInterval, params.ap.maxReceiveInterval, params.ap.warmup);
     case 0:
-        migrationPolicy = std::make_unique<FixedIntervalMigrationPolicy>(params.ap.interval);
-        break;
-    case 1:
-        migrationPolicy = std::make_unique<ImprovementTriggeredMigrationPolicy>(params.ap.warmup, params.ap.sendCooldown, params.ap.receiveStagnationThreshold);
-        break;
-    case 2:
-        migrationPolicy = std::make_unique<AdaptiveMigrationPolicy>(params.ap.sendCooldown, params.ap.minReceiveInterval, params.ap.maxReceiveInterval, params.ap.warmup);
-        break;
-    default:
-        migrationPolicy = std::make_unique<FixedIntervalMigrationPolicy>(params.ap.interval);
-        break;
+    default: return std::make_unique<FixedIntervalMigrationPolicy>(params.ap.interval);
     }
+}
 
+std::unique_ptr<MigrantSelector> IslandModel::makeMigrantSelector(const Params& params)
+{
     switch (params.ap.migrantSelector)
     {
     case 0:
-        migrantSelector = std::make_unique<StandardMigrantSelector>(params.ap.selectionCount);
-        break;
-    default:
-        migrantSelector = std::make_unique<StandardMigrantSelector>(params.ap.selectionCount);
-        break;
+    default: return std::make_unique<StandardMigrantSelector>(params.ap.selectionCount);
     }
+}
 
+std::unique_ptr<ImmigrantHandler> IslandModel::makeImmigrantHandler(const Params& params)
+{
     switch (params.ap.immigrantHandler)
     {
-    case 0: immigrantHandler = std::make_unique<StandardImmigrantHandler>(); break;
-    case 1: immigrantHandler = std::make_unique<LocalSearchImmigrantHandler>(); break;
-    case 2: immigrantHandler = std::make_unique<RepairImmigrantHandler>(); break;
-    default: immigrantHandler = std::make_unique<StandardImmigrantHandler>(); break;
+    case 1:  return std::make_unique<LocalSearchImmigrantHandler>();
+    case 2:  return std::make_unique<RepairImmigrantHandler>();
+    case 0:
+    default: return std::make_unique<StandardImmigrantHandler>();
     }
+}
+
+IslandModel::IslandModel(Params& params)
+{
+    islandCommunicator = makeCommunicator(params);
+
+    int rank = islandCommunicator->getRank();
+
+    topology = makeTopology(params, rank);
+    migrationPolicy = makeMigrationPolicy(params);
+    migrantSelector = makeMigrantSelector(params);
+    immigrantHandler = makeImmigrantHandler(params);
 
     islandState = { 0, 0, false, params.ap.nbIter };
 }
 
-void IslandModel::updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement)
+void IslandModel::updateState(int iteration, int iterWithoutImprovement, bool foundNewBest, int maxIterNoImprovement, double diversity)
 {
     islandState.iteration = iteration;
     islandState.iterationWithoutImprovement = iterWithoutImprovement;
     islandState.foundNewBest = foundNewBest;
     islandState.maxIterNoImprovement = maxIterNoImprovement;
+    islandState.diversity = diversity;
 }
 
 void IslandModel::handleMigrations(Population& population, Split& split, LocalSearch& localSearch, Params& params) 

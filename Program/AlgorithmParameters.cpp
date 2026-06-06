@@ -34,6 +34,7 @@ struct AlgorithmParameters default_algorithm_parameters() {
 
 	ap.topology = 0;
 	ap.nbNodes = 1;
+	ap.topologyDegree = 3;
 
 	ap.migrationPolicy = 0;
 	ap.interval = 20;
@@ -85,6 +86,7 @@ void print_algorithm_parameters(const AlgorithmParameters & ap)
 	std::cout << "---- useIslandModel					   is set to " << ap.useIslandModel << std::endl;
 	std::cout << "---- topology							   is set to " << ap.topology << std::endl;
 	std::cout << "---- nbNodes							   is set to " << ap.nbNodes << std::endl;
+	std::cout << "---- topologyDegree					   is set to " << ap.topologyDegree << std::endl;
 	std::cout << "---- migrationPolicy					   is set to " << ap.migrationPolicy << std::endl;
 	std::cout << "---- interval							   is set to " << ap.interval << std::endl;
 	std::cout << "---- warmup							   is set to " << ap.warmup << std::endl;

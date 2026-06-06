@@ -54,6 +54,12 @@ public:
 			pathSolution = std::string(argv[2]);
 			for (int i = 3; i < argc; i += 2)
 			{
+				if (i + 1 >= argc)
+				{
+					std::cout << "----- MISSING VALUE FOR ARGUMENT: " << std::string(argv[i]) << std::endl;
+					display_help();
+					throw std::string("Incorrect line of command");
+				}
 				if (std::string(argv[i]) == "-t")
 					ap.timeLimit = atof(argv[i + 1]);
 				else if (std::string(argv[i]) == "-it")
@@ -92,6 +98,8 @@ public:
 					ap.topology = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-nbNodes")
 					ap.nbNodes = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-topologyDegree")
+					ap.topologyDegree = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-migrationPolicy")
 					ap.migrationPolicy = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-interval")
@@ -112,6 +120,8 @@ public:
 					ap.selectionCount = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-immigrantHandler")
 					ap.immigrantHandler = atoi(argv[i + 1]);
+				else if (std::string(argv[i]) == "-islandCommunicator")
+					ap.islandCommunicator = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-gpu")
 					ap.useGpu = atoi(argv[i + 1]);
 				else if (std::string(argv[i]) == "-openMP")
@@ -157,7 +167,7 @@ public:
 		std::cout << "[-penaltyIncrease <double>] penalty increase if insufficient feasible individuals between penalty updates. Defaults to 1.2      " << std::endl;
 		std::cout << "[-penaltyDecrease <double>] penalty decrease if sufficient feasible individuals between penalty updates. Defaults to 0.85       " << std::endl;
 		std::cout << "[-gpu <bool>] whether to use GPU acceleration for the local search. It can be 0 or 1. Defaults to 0.                            " << std::endl;
-		std::cout << "[-useOpenMP <bool>] whether to use OpenMP for the local search. It can be 0 or 1. Defaults to 0.                                " << std::endl;
+		std::cout << "[-openMP <bool>] whether to use OpenMP for the local search. It can be 0 or 1. Defaults to 0.                                   " << std::endl;
 		std::cout << "--------------------------------------------------------------------------------------------------------------------------------" << std::endl;
 		std::cout << std::endl;
 	};

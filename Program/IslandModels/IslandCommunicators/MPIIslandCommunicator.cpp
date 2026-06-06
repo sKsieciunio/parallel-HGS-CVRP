@@ -45,8 +45,7 @@ std::vector<Individual> MPIIslandCommunicator::tryReceiveMigrants()
     MPI_Test(&recvRequest, &flag, MPI_STATUS_IGNORE);
     while (flag) 
     {
-        std::vector<int> chromT(recvBuffer.begin(), recvBuffer.end());
-        received.emplace_back(params, chromT);
+        received.emplace_back(params, recvBuffer);
         postReceive();
         flag = 0;
         MPI_Test(&recvRequest, &flag, MPI_STATUS_IGNORE);

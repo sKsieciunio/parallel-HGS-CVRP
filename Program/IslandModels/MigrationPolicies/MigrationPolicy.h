@@ -90,11 +90,60 @@ public:
         return true;
     }
 
-    bool shouldReceive(const IslandState& state) override 
+    bool shouldReceive(const IslandState& state) override
     {
         if (state.iteration < warmup) return false;
         int interval = currentReceiveInterval(state);
-        if (state.iteration - lastReceiveCheckIteration >= interval) 
+        if (state.iteration - lastReceiveCheckIteration >= interval)
+        {
+            lastReceiveCheckIteration = state.iteration;
+            return true;
+        }
+        return false;
+    }
+};
+
+class DiversityDrivenMigrationPolicy : public MigrationPolicy {
+private:
+    int sendCooldown;
+    int minReceiveInterval;
+    int maxReceiveInterval;
+    int warmup;
+    int lastSendIteration = -1000000;
+    int lastReceiveCheckIteration = -1000000;
+    double peakDiversity = 0.0;
+
+public:
+    DiversityDrivenMigrationPolicy(int sendCooldown, int minReceiveInterval, int maxReceiveInterval, int warmup)
+        : sendCooldown(sendCooldown), minReceiveInterval(minReceiveInterval), maxReceiveInterval(maxReceiveInterval), warmup(warmup)
+    {
+    }
+
+    int currentReceiveInterval(const IslandState& state) const
+    {
+        if (state.diversity < 0.0 || peakDiversity <= 0.0)
+            return maxReceiveInterval;
+        double collapse = (peakDiversity - state.diversity) / peakDiversity;
+        if (collapse < 0.0) collapse = 0.0;
+        if (collapse > 1.0) collapse = 1.0;
+        return (int)(maxReceiveInterval - collapse * (maxReceiveInterval - minReceiveInterval));
+    }
+
+    bool shouldSend(const IslandState& state) override
+    {
+        if (state.iteration < warmup) return false;
+        if (!state.foundNewBest) return false;
+        if (state.iteration - lastSendIteration < sendCooldown) return false;
+        lastSendIteration = state.iteration;
+        return true;
+    }
+
+    bool shouldReceive(const IslandState& state) override
+    {
+        if (state.iteration < warmup) return false;
+        if (state.diversity > peakDiversity) peakDiversity = state.diversity;
+        int interval = currentReceiveInterval(state);
+        if (state.iteration - lastReceiveCheckIteration >= interval)
         {
             lastReceiveCheckIteration = state.iteration;
             return true;

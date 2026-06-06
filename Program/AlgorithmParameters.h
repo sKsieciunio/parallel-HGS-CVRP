@@ -30,6 +30,7 @@ struct AlgorithmParameters {
 	// Topology
 	int topology;
 	int nbNodes;
+	int topologyDegree;     // Degree for the random-regular topology (topology == 5)
 	// MigrationPolicy
 	int migrationPolicy;
 	int interval;

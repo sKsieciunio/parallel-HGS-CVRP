@@ -2,8 +2,9 @@
 
 bool StandardOffspringMaker::makeOffspring() 
 {
-	const Individual & p1 = population.getBinaryTournament();
-	const Individual & p2 = population.getBinaryTournament();
+	population.updateAllBiasedFitnesses();
+	const Individual & p1 = population.getBinaryTournamentNoUpdate(params.ran);
+	const Individual & p2 = population.getBinaryTournamentNoUpdate(params.ran);
 
 	crossoverOX(offspring, p1, p2);
 	localSearch.run(offspring, params.penaltyCapacity, params.penaltyDuration);

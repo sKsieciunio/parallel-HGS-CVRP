@@ -1,5 +1,5 @@
-#ifndef ACCAPTANCE_POLICY_H
-#define ACCEPTANCE_POLICY_H
+#ifndef IMMIGRANT_HANDLER_H
+#define IMMIGRANT_HANDLER_H
 
 #include "../../Population.h"
 
@@ -45,4 +45,4 @@ class RepairImmigrantHandler : public ImmigrantHandler
 	}
 };
 
-#endif // !ACCAPTANCE_POLICY_H
+#endif // !IMMIGRANT_HANDLER_H

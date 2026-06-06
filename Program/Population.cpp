@@ -92,6 +92,11 @@ void Population::updateBiasedFitnesses(SubPopulation & pop)
 void Population::removeWorstBiasedFitness(SubPopulation & pop)
 {
 	updateBiasedFitnesses(pop);
+	removeWorstBiasedFitnessNoUpdate(pop);
+}
+
+void Population::removeWorstBiasedFitnessNoUpdate(SubPopulation & pop)
+{
 	if (pop.size() <= 1) throw std::string("Eliminating the best individual: this should not occur in HGS");
 
 	Individual * worstIndividual = NULL;
@@ -158,19 +163,9 @@ void Population::managePenalties()
 		+ params.penaltyCapacity * infeasibleSubpop[i]->eval.capacityExcess
 		+ params.penaltyDuration * infeasibleSubpop[i]->eval.durationExcess;
 
-	// If needed, reorder the individuals in the infeasible subpopulation since the penalty values have changed (simple bubble sort for the sake of simplicity)
-	for (int i = 0; i < (int)infeasibleSubpop.size(); i++)
-	{
-		for (int j = 0; j < (int)infeasibleSubpop.size() - i - 1; j++)
-		{
-			if (infeasibleSubpop[j]->eval.penalizedCost > infeasibleSubpop[j + 1]->eval.penalizedCost + MY_EPSILON)
-			{
-				Individual * indiv = infeasibleSubpop[j];
-				infeasibleSubpop[j] = infeasibleSubpop[j + 1];
-				infeasibleSubpop[j + 1] = indiv;
-			}
-		}
-	}
+	// Reorder the individuals in the infeasible subpopulation since the penalty values have changed.
+	std::stable_sort(infeasibleSubpop.begin(), infeasibleSubpop.end(),
+		[](const Individual * a, const Individual * b) { return a->eval.penalizedCost < b->eval.penalizedCost; });
 }
 
 const Individual & Population::getBinaryTournament ()
@@ -189,19 +184,19 @@ const Individual & Population::getBinaryTournament ()
 	else return *indiv2 ;		
 }
 
-const Individual * Population::getBestFeasible ()
+const Individual * Population::getBestFeasible () const
 {
 	if (!feasibleSubpop.empty()) return feasibleSubpop[0] ;
 	else return NULL ;
 }
 
-const Individual * Population::getBestInfeasible ()
+const Individual * Population::getBestInfeasible () const
 {
 	if (!infeasibleSubpop.empty()) return infeasibleSubpop[0] ;
 	else return NULL ;
 }
 
-const Individual * Population::getBestFound()
+const Individual * Population::getBestFound() const
 {
 	if (bestSolutionOverall.eval.penalizedCost < 1.e29) return &bestSolutionOverall;
 	else return NULL;

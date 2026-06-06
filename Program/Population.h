@@ -49,8 +49,11 @@ class Population
    // Evaluates the biased fitness of all individuals in the population
    void updateBiasedFitnesses(SubPopulation & pop);
 
-   // Removes the worst individual in terms of biased fitness
+   // Removes the worst individual in terms of biased fitness (recomputes biased fitnesses first)
    void removeWorstBiasedFitness(SubPopulation & subpop);
+
+   // Removes the worst individual in terms of biased fitness, assuming the biased fitnesses are already up to date
+   void removeWorstBiasedFitnessNoUpdate(SubPopulation & subpop);
 
    public:
 
@@ -71,13 +74,13 @@ class Population
    const Individual & getBinaryTournament();
 
    // Accesses the best feasible individual
-   const Individual * getBestFeasible();
+   const Individual * getBestFeasible() const;
 
    // Accesses the best infeasible individual
-   const Individual * getBestInfeasible();
+   const Individual * getBestInfeasible() const;
 
    // Accesses the best found solution at all time
-   const Individual * getBestFound();
+   const Individual * getBestFound() const;
 
    // Prints population state
    void printState(int nbIter, int nbIterNoImprovement);
