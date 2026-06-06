@@ -17,7 +17,6 @@ class ParallelOffspringMaker : public OffspringMaker
 	std::vector<Individual> offspring;
 	std::vector<bool> needsRepair;
 	std::vector<char> offspringFreqClient;
-	std::uniform_int_distribution<> distr;
 
 	void crossoverOX(Individual & result, const Individual & parent1, const Individual & parent2, std::minstd_rand & rng, int offspringIdx);
 

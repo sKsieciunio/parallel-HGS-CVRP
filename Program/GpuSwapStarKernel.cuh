@@ -272,14 +272,40 @@ __global__ __launch_bounds__(256, 6) void evalSwapStarKernel(
         }
     }
 
-    // --- Block-level reduction: find best move across all threads ---
-    sReduce[tid] = local;
+    // --- Warp-level reduction via shuffle (5 steps, no smem) ---
+    const unsigned fullMask = 0xffffffff;
+    for (int offset = 16; offset > 0; offset >>= 1)
+    {
+        double otherCost   = __shfl_down_sync(fullMask, local.moveCost, offset);
+        int    otherNodeU  = __shfl_down_sync(fullMask, local.nodeU,    offset);
+        int    otherNodeV  = __shfl_down_sync(fullMask, local.nodeV,    offset);
+        int    otherPosU   = __shfl_down_sync(fullMask, local.bestPosU, offset);
+        int    otherPosV   = __shfl_down_sync(fullMask, local.bestPosV, offset);
+        int    otherType   = __shfl_down_sync(fullMask, local.moveType, offset);
+        if (otherCost < local.moveCost)
+        {
+            local.moveCost = otherCost;
+            local.nodeU    = otherNodeU;
+            local.nodeV    = otherNodeV;
+            local.bestPosU = otherPosU;
+            local.bestPosV = otherPosV;
+            local.moveType = otherType;
+        }
+    }
+
+    // --- Write one result per warp into shared memory, then reduce ---
+    // sReduce is now sized blockDim.x/32 (8 entries for BLOCK_SIZE=256)
+    const int warpId = tid / 32;
+    const int lane   = tid % 32;
+    if (lane == 0)
+        sReduce[warpId] = local;
     __syncthreads();
 
     if (tid == 0)
     {
         GpuSwapStarResult best = sReduce[0];
-        for (int i = 1; i < blockDim.x; i++)
+        const int numWarps = blockDim.x / 32;
+        for (int i = 1; i < numWarps; i++)
             if (sReduce[i].moveCost < best.moveCost)
                 best = sReduce[i];
         results[pairIdx] = best;

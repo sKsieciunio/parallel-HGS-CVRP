@@ -25,8 +25,6 @@ void SynchronousMPIIslandCommunicator::sendMigrants(const std::vector<Individual
         }
     }
 
-    MPI_Barrier(MPI_COMM_WORLD);
-
     if (!sendRequests.empty())
     {
         MPI_Waitall(sendRequests.size(), sendRequests.data(), MPI_STATUSES_IGNORE);

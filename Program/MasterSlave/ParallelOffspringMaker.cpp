@@ -21,7 +21,6 @@ ParallelOffspringMaker::ParallelOffspringMaker(Params & params, Population & pop
 
 
 	needsRepair.resize(numOffspring, false);
-	distr = std::uniform_int_distribution<>(0, params.nbClients - 1);
 	offspringFreqClient.resize(numOffspring * (params.nbClients + 1), false);
 
 	omp_set_num_threads(numThreads);
@@ -32,6 +31,7 @@ void ParallelOffspringMaker::crossoverOX(Individual & result, const Individual &
 	int offset = offspringIdx * (params.nbClients + 1);
 	std::fill(offspringFreqClient.begin() + offset, offspringFreqClient.begin() + offset + params.nbClients + 1, false);
 
+	std::uniform_int_distribution<> distr(0, params.nbClients - 1);
 	int start = distr(rng);
 	int end = distr(rng);
 	while (end == start)

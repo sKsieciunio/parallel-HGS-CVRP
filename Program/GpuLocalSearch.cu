@@ -133,7 +133,7 @@ public:
         const size_t dblsBytes  =  (size_t)(2 * maxLen) * sizeof(double);
         const size_t reducBytes = ((intsBytes + dblsBytes + 7u) & ~7u)
                                   - (intsBytes + dblsBytes)
-                                  + (size_t)BLOCK_SIZE * sizeof(GpuSwapStarResult);
+                                  + (size_t)(BLOCK_SIZE / 32) * sizeof(GpuSwapStarResult);
         const size_t smemSize = intsBytes + dblsBytes + reducBytes;
 
         // One block per route pair — all pairs evaluated in parallel

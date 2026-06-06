@@ -6,7 +6,7 @@ OpenMPLocalSearch::OpenMPLocalSearch(Params& params) : params(params)
 	nThreads = omp_get_max_threads();
 	threadBestInsert.resize(nThreads,
 		std::vector<std::vector<ThreeBestInsert>>(
-			params.nbVehicles,
+			2,
 			std::vector<ThreeBestInsert>(params.nbClients + 1)));
 	int maxPairs = params.nbVehicles * (params.nbVehicles - 1) / 2;
 	qualifyingPairs.reserve(maxPairs);
@@ -116,10 +116,12 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 	bestResult.routeUIdx = rU;
 	bestResult.routeVIdx = rV;
 
-	// --- Preprocess insertions: U clients into routeV ---
+	// localBestInsert[0] = insertions into routeU, localBestInsert[1] = insertions into routeV
+
+	// --- Preprocess insertions: U clients into routeV (buf 1) ---
 	for (Node* U = myRouteU->depot->next; !U->isDepot; U = U->next)
 	{
-		ThreeBestInsert& bi = localBestInsert[rV][U->cour];
+		ThreeBestInsert& bi = localBestInsert[1][U->cour];
 		bi.reset();
 		bi.bestCost[0] = params.timeCost[0][U->cour]
 			+ params.timeCost[U->cour][myRouteV->depot->next->cour]
@@ -134,10 +136,10 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 		}
 	}
 
-	// --- Preprocess insertions: V clients into routeU ---
+	// --- Preprocess insertions: V clients into routeU (buf 0) ---
 	for (Node* V = myRouteV->depot->next; !V->isDepot; V = V->next)
 	{
-		ThreeBestInsert& bi = localBestInsert[rU][V->cour];
+		ThreeBestInsert& bi = localBestInsert[0][V->cour];
 		bi.reset();
 		bi.bestCost[0] = params.timeCost[0][V->cour]
 			+ params.timeCost[V->cour][myRouteU->depot->next->cour]
@@ -153,9 +155,10 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 	}
 
 	// --- Lambda: getCheapestInsertSimultRemoval using local buffer ---
-	auto getCheapest = [&](Node* ins, Node* rem, int remRouteIdx, Node*& bestPos) -> double
+	// bufIdx: 0 = routeU buffer, 1 = routeV buffer
+	auto getCheapest = [&](Node* ins, Node* rem, int bufIdx, Node*& bestPos) -> double
 		{
-			ThreeBestInsert& bi = localBestInsert[remRouteIdx][ins->cour];
+			ThreeBestInsert& bi = localBestInsert[bufIdx][ins->cour];
 			bestPos = bi.bestLocation[0];
 			double best = bi.bestCost[0];
 			bool found = (bestPos != rem && bestPos->next != rem);
@@ -200,8 +203,8 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 				candidate.routeUIdx = rU;
 				candidate.routeVIdx = rV;
 
-				double extraV = getCheapest(U, V, rV, candidate.bestPositionU);
-				double extraU = getCheapest(V, U, rU, candidate.bestPositionV);
+				double extraV = getCheapest(U, V, 1, candidate.bestPositionU);
+				double extraU = getCheapest(V, U, 0, candidate.bestPositionV);
 
 				candidate.moveCost = deltaPenU + U->deltaRemoval + extraU + deltaPenV + V->deltaRemoval + extraV
 					+ penaltyExcessDuration(myRouteU->duration + U->deltaRemoval + extraU + params.cli[V->cour].serviceDuration - params.cli[U->cour].serviceDuration)
@@ -220,12 +223,12 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 		candidate.U = U;
 		candidate.routeUIdx = rU;
 		candidate.routeVIdx = rV;
-		candidate.bestPositionU = localBestInsert[rV][U->cour].bestLocation[0];
+		candidate.bestPositionU = localBestInsert[1][U->cour].bestLocation[0];
 
 		double deltaDistU = params.timeCost[U->prev->cour][U->next->cour]
 			- params.timeCost[U->prev->cour][U->cour]
 			- params.timeCost[U->cour][U->next->cour];
-		double deltaDistV = localBestInsert[rV][U->cour].bestCost[0];
+		double deltaDistV = localBestInsert[1][U->cour].bestCost[0];
 
 		candidate.moveCost = deltaDistU + deltaDistV
 			+ penaltyExcessLoad(myRouteU->load - params.cli[U->cour].demand) - myRouteU->penalty
@@ -244,9 +247,9 @@ OmpSwapStarResult OpenMPLocalSearch::evaluatePair(
 		candidate.V = V;
 		candidate.routeUIdx = rU;
 		candidate.routeVIdx = rV;
-		candidate.bestPositionV = localBestInsert[rU][V->cour].bestLocation[0];
+		candidate.bestPositionV = localBestInsert[0][V->cour].bestLocation[0];
 
-		double deltaDistU = localBestInsert[rU][V->cour].bestCost[0];
+		double deltaDistU = localBestInsert[0][V->cour].bestCost[0];
 		double deltaDistV = params.timeCost[V->prev->cour][V->next->cour]
 			- params.timeCost[V->prev->cour][V->cour]
 			- params.timeCost[V->cour][V->next->cour];

@@ -37,8 +37,10 @@ private:
 	int nThreads;
 	std::vector<RoutePair> qualifyingPairs;
 
-	// Per-thread buffers for ThreeBestInsert
-	// Dimension: [nThreads][nbVehicles][nbClients+1]
+	// Per-thread buffers for ThreeBestInsert: [nThreads][2][nbClients+1]
+	// Index 0 = buffer for routeU, index 1 = buffer for routeV.
+	// Two rows per thread instead of nbVehicles rows — avoids GBs of allocation
+	// for large instances (XL-n10001 with nbVehicles~1570 and 8 threads = ~6 GB).
 	std::vector<std::vector<std::vector<ThreeBestInsert>>> threadBestInsert;
 
 	// Evaluate a single (routeU, routeV) pair

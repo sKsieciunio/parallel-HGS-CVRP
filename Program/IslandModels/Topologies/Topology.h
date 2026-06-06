@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <set>
+#include <string>
 #include <random>
 #include <algorithm>
 
@@ -43,14 +44,17 @@ public:
     }
 };
 
-class Hypercube : public Topology 
+class Hypercube : public Topology
 {
 public:
     Hypercube(int n_islands_, int island_idx_) :
-        Topology(n_islands_, island_idx_) 
+        Topology(n_islands_, island_idx_)
     {
+        if (n_islands_ > 1 && (n_islands_ & (n_islands_ - 1)) != 0)
+            throw std::string("Hypercube topology requires nbNodes to be a power of 2 (got "
+                + std::to_string(n_islands_) + "). Use -topology 5 (RandomRegular) instead.");
         neighbors = {};
-        for (int i = 1; i < n_islands; i <<= 1) 
+        for (int i = 1; i < n_islands; i <<= 1)
         {
             neighbors.push_back(i ^ island_idx);
         }
