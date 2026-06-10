@@ -55,13 +55,31 @@ std::vector<Individual> MPIIslandCommunicator::tryReceiveMigrants()
 
 MPIIslandCommunicator::~MPIIslandCommunicator()
 {
-    for (auto& ps : pendingSends)
+	int flag = 0;
+
+    for (auto & ps : pendingSends)
     {
-        MPI_Cancel(&ps.request);
-        MPI_Wait(&ps.request, MPI_STATUS_IGNORE);
-    }
+		flag = 0;
+		MPI_Test(&ps.request, &flag, MPI_STATUS_IGNORE);
+		if (!flag)
+        {
+			MPI_Cancel(&ps.request);
+			MPI_Wait(&ps.request, MPI_STATUS_IGNORE);
+		}
+	}
+	pendingSends.clear();
+
     MPI_Cancel(&recvRequest);
     MPI_Wait(&recvRequest, MPI_STATUS_IGNORE);
+
+    flag = 0;
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+	while (flag) 
+    {
+		MPI_Recv(recvBuffer.data(), params.nbClients, MPI_INT, MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		flag = 0;
+		MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+	}
 }
 
 bool MPIIslandCommunicator::getBestSolution(const Individual* bestLocal, int nbClients, std::vector<int>& outBestChromT, double& outBestCost) 

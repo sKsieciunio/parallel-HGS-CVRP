@@ -9,6 +9,7 @@ public:
 	virtual ~MigrationPolicy() = default;
 	virtual bool shouldSend(const IslandState& islandState) = 0;
 	virtual bool shouldReceive(const IslandState& islandState) = 0;
+	virtual bool needsDiversity() const { return false; }
 };
 
 class FixedIntervalMigrationPolicy : public MigrationPolicy 
@@ -150,6 +151,8 @@ public:
         }
         return false;
     }
+
+    bool needsDiversity() const override { return true; }
 };
 
 #endif // !MIGRATION_POLICY_H

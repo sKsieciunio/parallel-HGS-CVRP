@@ -864,7 +864,7 @@ void LocalSearch::exportIndividual(Individual & indiv)
 	indiv.evaluateCompleteCost(params);
 }
 
-LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_)
+LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_, GpuProblemData* sharedGpu)
 	: params(params), gpuLS_(nullptr), gpuSwapStarLastNbMoves_(-1), ompLS_(nullptr), routeTouched_(params.nbVehicles, false), rng(rng_)
 {
 	clients = std::vector<Node>(params.nbClients + 1);
@@ -895,22 +895,29 @@ LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_)
 
 	// GPU initialisation (only when requested)
 	if (params.ap.useGpu) {
-		const int n = params.nbClients + 1;
-		std::vector<double> timeCostFlat((size_t)n * n);
-		for (int i = 0; i < n; i++)
-			for (int j = 0; j < n; j++)
-				timeCostFlat[(size_t)i * n + j] = params.timeCost[i][j];
-
-		std::vector<double> demand(n), service(n);
-		for (int i = 0; i < n; i++) {
-			demand[i] = params.cli[i].demand;
-			service[i] = params.cli[i].serviceDuration;
+		if (sharedGpu) 
+		{
+			gpuLS_ = createGpuLocalSearchShared(sharedGpu, params.nbClients, params.nbVehicles, params.vehicleCapacity, params.durationLimit);
 		}
+		else 
+		{
+			const int n = params.nbClients + 1;
+			std::vector<double> timeCostFlat((size_t)n * n);
+			for (int i = 0; i < n; i++)
+				for (int j = 0; j < n; j++)
+					timeCostFlat[(size_t)i * n + j] = params.timeCost[i][j];
 
-		gpuLS_ = createGpuLocalSearch(
-			timeCostFlat.data(), demand.data(), service.data(),
-			params.nbClients, params.nbVehicles,
-			params.vehicleCapacity, params.durationLimit);
+			std::vector<double> demand(n), service(n);
+			for (int i = 0; i < n; i++) {
+				demand[i] = params.cli[i].demand;
+				service[i] = params.cli[i].serviceDuration;
+			}
+
+			gpuLS_ = createGpuLocalSearch(
+				timeCostFlat.data(), demand.data(), service.data(),
+				params.nbClients, params.nbVehicles,
+				params.vehicleCapacity, params.durationLimit);
+		}
 
 		if (!gpuLS_)
 			std::cout << "Warning: GPU initialisation failed; falling back to CPU SWAP*." << std::endl;
@@ -937,7 +944,7 @@ LocalSearch::LocalSearch(Params& params, std::minstd_rand rng_)
 }
 
 LocalSearch::LocalSearch(Params & params)
-	: LocalSearch(params, params.ran)
+	: LocalSearch(params, params.ran, nullptr)
 {
 }
 

@@ -18,11 +18,13 @@ class ParallelOffspringMaker : public OffspringMaker
 	std::vector<bool> needsRepair;
 	std::vector<char> offspringFreqClient;
 
+	GpuProblemData * sharedGpu_ = nullptr;
+
 	void crossoverOX(Individual & result, const Individual & parent1, const Individual & parent2, std::minstd_rand & rng, int offspringIdx);
 
 	bool makeOffspring() override;
 	ParallelOffspringMaker(Params & params, Population & population, int numOffspring, int numThreads);
-	~ParallelOffspringMaker() = default;
+	~ParallelOffspringMaker();
 };
 
 #endif

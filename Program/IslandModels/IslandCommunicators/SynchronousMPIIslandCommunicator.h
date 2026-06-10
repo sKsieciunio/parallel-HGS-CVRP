@@ -33,7 +33,7 @@ public:
 
     bool getBestSolution(const Individual* bestLocal, int nbClients, std::vector<int>& outBestChromT, double& outBestCost) override;
 
-    ~SynchronousMPIIslandCommunicator() = default;
+    ~SynchronousMPIIslandCommunicator();
 };
 
 

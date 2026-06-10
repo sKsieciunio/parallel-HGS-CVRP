@@ -90,4 +90,16 @@ bool SynchronousMPIIslandCommunicator::getBestSolution(const Individual* bestLoc
     return false;
 }
 
+SynchronousMPIIslandCommunicator::~SynchronousMPIIslandCommunicator()
+{
+	int flag = 0;
+	MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+	while (flag)
+    {
+		MPI_Recv(recvBuf.data(), params.nbClients, MPI_INT, MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+		flag = 0;
+		MPI_Iprobe(MPI_ANY_SOURCE, TAG_MIGRANT, MPI_COMM_WORLD, &flag, MPI_STATUS_IGNORE);
+	}
+}
+
 #endif // USE_MPI

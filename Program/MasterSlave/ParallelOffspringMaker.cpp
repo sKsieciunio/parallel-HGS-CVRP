@@ -14,8 +14,23 @@ ParallelOffspringMaker::ParallelOffspringMaker(Params & params, Population & pop
 		rngs.emplace_back(params.ap.seed + i);
 		offspring.emplace_back(params);
 	}
+
+	if (params.ap.useGpu) 
+	{
+		const int n = params.nbClients + 1;
+		std::vector<double> tc((size_t)n * n), dem(n), svc(n);
+		for (int i = 0; i < n; i++) 
+		{
+			dem[i] = params.cli[i].demand;
+			svc[i] = params.cli[i].serviceDuration;
+			for (int j = 0; j < n; j++)
+				tc[(size_t)i * n + j] = params.timeCost[i][j];
+		}
+		sharedGpu_ = createGpuProblemData(tc.data(), dem.data(), svc.data(), params.nbClients);
+	}
+
 	for (int t = 0; t < numThreads; t++) {
-		localSearches.push_back(std::make_unique<LocalSearch>(params, std::minstd_rand(params.ap.seed + t)));
+		localSearches.push_back(std::make_unique<LocalSearch>(params, std::minstd_rand(params.ap.seed + t), sharedGpu_));
 		splits.push_back(std::make_unique<Split>(params));
 	}
 
@@ -103,4 +118,9 @@ bool ParallelOffspringMaker::makeOffspring()
 	}
 
 	return anyNewBest;
+}
+
+ParallelOffspringMaker::~ParallelOffspringMaker()
+{
+	destroyGpuProblemData(sharedGpu_);
 }

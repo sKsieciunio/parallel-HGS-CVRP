@@ -32,7 +32,7 @@ void Genetic::run()
 		/* MIGRATIONS */
 		if (islandModel != nullptr)
 		{
-			double diversity = population.getDiversity(population.getFeasibleSubpop());
+			double diversity = islandModel->migrationPolicy->needsDiversity() ? population.getDiversity(population.getFeasibleSubpop()) : -1.0;
 			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter, diversity);
 			islandModel->handleMigrations(population, split, localSearch, params);
 		}

@@ -222,7 +222,7 @@ private:
 
 	// Constructor / destructor
 	LocalSearch(Params & params);
-	LocalSearch(Params & params, std::minstd_rand rng_);
+	LocalSearch(Params & params, std::minstd_rand rng_, GpuProblemData* sharedGpu = nullptr);
 	~LocalSearch();
 };
 
