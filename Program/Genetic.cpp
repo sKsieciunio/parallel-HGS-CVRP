@@ -1,22 +1,54 @@
 #include "Genetic.h"
 #include "StandardOffspringMaker.h"
 #include "ParallelOffspringMaker.h"
+#include <chrono>
+#include <fstream>
+#include <iomanip>
 
 void Genetic::run()
-{	
+{
+	using Clock = std::chrono::steady_clock;
+	auto wallStart = Clock::now();
+	auto lastSample = wallStart;
+
+	/* CONVERGENCE TRACE FILE */
+	std::ofstream convOut;
+	if (!params.convergenceCsvPath.empty())
+	{
+		convOut.open(params.convergenceCsvPath);
+		if (convOut.is_open())
+			convOut << "elapsed_sec;best_cost;iter\n";
+	}
+
+	auto writeSample = [&](int iter)
+	{
+		if (!convOut.is_open()) return;
+		double elapsed = std::chrono::duration<double>(Clock::now() - wallStart).count();
+		const Individual* best = population.getBestFound();
+		convOut << std::fixed << std::setprecision(3) << elapsed << ";";
+		if (best)
+			convOut << std::setprecision(2) << best->eval.penalizedCost;
+		else
+			convOut << "inf";
+		convOut << ";" << iter << "\n";
+		convOut.flush();
+		lastSample = Clock::now();
+	};
+
 	/* INITIAL POPULATION */
 	population.generatePopulation();
+	writeSample(0);
 
 	int nbIter;
 	int nbIterNonProd = 1;
 	if (params.verbose) std::cout << "----- STARTING GENETIC ALGORITHM" << std::endl;
 	for (nbIter = 0 ; nbIterNonProd <= params.ap.nbIter && (params.ap.timeLimit == 0 || (double)(clock()-params.startTime)/(double)CLOCKS_PER_SEC < params.ap.timeLimit) ; nbIter++)
-	{	
+	{
 		bool isNewBest = offspringMaker->makeOffspring();
 
 		/* TRACKING THE NUMBER OF ITERATIONS SINCE LAST SOLUTION IMPROVEMENT */
 		if (isNewBest) nbIterNonProd = 1;
-		else nbIterNonProd ++ ;
+		else nbIterNonProd++;
 
 		/* DIVERSIFICATION, PENALTY MANAGEMENT AND TRACES */
 		if (nbIter % params.ap.nbIterPenaltyManagement == 0) population.managePenalties();
@@ -36,7 +68,18 @@ void Genetic::run()
 			islandModel->updateState(nbIter, nbIterNonProd, isNewBest, params.ap.nbIter, diversity);
 			islandModel->handleMigrations(population, split, localSearch, params);
 		}
+
+		/* CONVERGENCE SAMPLE — at most once per wall-clock second */
+		if (convOut.is_open())
+		{
+			if (std::chrono::duration<double>(Clock::now() - lastSample).count() >= 1.0)
+				writeSample(nbIter);
+		}
 	}
+
+	writeSample(nbIter);  // final data point
+
+	params.telemetry.totalIterations.store(nbIter, std::memory_order_relaxed);
 	if (params.verbose) std::cout << "----- GENETIC ALGORITHM FINISHED AFTER " << nbIter << " ITERATIONS. TIME SPENT: " << (double)(clock() - params.startTime) / (double)CLOCKS_PER_SEC << std::endl;
 }
 

@@ -86,16 +86,22 @@ void IslandModel::updateState(int iteration, int iterWithoutImprovement, bool fo
     islandState.diversity = diversity;
 }
 
-void IslandModel::handleMigrations(Population& population, Split& split, LocalSearch& localSearch, Params& params) 
+void IslandModel::handleMigrations(Population& population, Split& split, LocalSearch& localSearch, Params& params)
 {
-    if (migrationPolicy->shouldSend(islandState)) 
+    if (migrationPolicy->shouldSend(islandState))
     {
-        islandCommunicator->sendMigrants(migrantSelector->selectMigrants(population), topology->getNeighbors());
+        auto migrants = migrantSelector->selectMigrants(population);
+        islandCommunicator->sendMigrants(migrants, topology->getNeighbors());
+        params.telemetry.migrationsSent.fetch_add(
+            (long long)migrants.size() * (long long)topology->getNeighbors().size(),
+            std::memory_order_relaxed);
     }
 
-    if (migrationPolicy->shouldReceive(islandState)) 
+    if (migrationPolicy->shouldReceive(islandState))
     {
         auto incoming = islandCommunicator->tryReceiveMigrants();
+        params.telemetry.migrationsReceived.fetch_add(
+            (long long)incoming.size(), std::memory_order_relaxed);
         for (auto& migrant : incoming) {
             immigrantHandler->handle(population, migrant, split, localSearch, params);
         }

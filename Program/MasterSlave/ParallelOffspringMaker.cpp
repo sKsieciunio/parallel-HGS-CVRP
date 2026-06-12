@@ -1,5 +1,6 @@
 #include "ParallelOffspringMaker.h"
 #include <omp.h>
+#include <chrono>
 
 ParallelOffspringMaker::ParallelOffspringMaker(Params & params, Population & population, int numOffspring, int numThreads)
 	: params(params), population(population),
@@ -72,6 +73,8 @@ void ParallelOffspringMaker::crossoverOX(Individual & result, const Individual &
 
 bool ParallelOffspringMaker::makeOffspring()
 {
+	auto tStart = std::chrono::steady_clock::now();
+
 	for (int i = 1; i <= params.nbClients; i++)
 		if (rngs[0]() % params.ap.nbGranular == 0)
 			std::shuffle(params.correlatedVertices[i].begin(), params.correlatedVertices[i].end(), rngs[0]);
@@ -116,6 +119,13 @@ bool ParallelOffspringMaker::makeOffspring()
 				anyNewBest = true;
 		}
 	}
+
+	params.telemetry.offspringRounds.fetch_add(1, std::memory_order_relaxed);
+	params.telemetry.offspringGenerated.fetch_add(numOffspring, std::memory_order_relaxed);
+	params.telemetry.offspringNs.fetch_add(
+	    std::chrono::duration_cast<std::chrono::nanoseconds>(
+	        std::chrono::steady_clock::now() - tStart).count(),
+	    std::memory_order_relaxed);
 
 	return anyNewBest;
 }

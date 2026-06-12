@@ -6,10 +6,10 @@
             "hidden": true,
             "generator": "Visual Studio 18 2026",
             "architecture": "x64",
-            "toolset": "cuda=12.6",
+            "toolset": "cuda=13.2",
             "binaryDir": "${sourceDir}/build/${presetName}",
             "cacheVariables": {
-                "CMAKE_CUDA_ARCHITECTURES": "61"
+                "CMAKE_CUDA_ARCHITECTURES": "120"
             }
         },
         {

@@ -1,7 +1,11 @@
-#include "LocalSearch.h" 
+#include "LocalSearch.h"
+#include <chrono>
 
 void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penaltyDurationLS)
 {
+	using Clock = std::chrono::steady_clock;
+	auto tRunStart = Clock::now();
+
 	this->penaltyCapacityLS = penaltyCapacityLS;
 	this->penaltyDurationLS = penaltyDurationLS;
 	loadIndividual(indiv);
@@ -9,12 +13,18 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 	// Shuffling the order of the nodes explored by the LS to allow for more diversity in the search
 	std::shuffle(orderNodes.begin(), orderNodes.end(), rng);
 	std::shuffle(orderRoutes.begin(), orderRoutes.end(), rng);
-	if (!params.ap.makeManyOffspring) 
+	if (!params.ap.makeManyOffspring)
 	{
 		for (int i = 1; i <= params.nbClients; i++)
 			if (rng() % params.ap.nbGranular == 0)  // O(n/nbGranular) calls to the inner function on average, to achieve linear-time complexity overall
 				std::shuffle(params.correlatedVertices[i].begin(), params.correlatedVertices[i].end(), rng);
 	}
+
+	int nbMovesAtStart = nbMoves;
+	long long localGpuApplied = 0, localOmpApplied = 0, localCpuApplied = 0;
+	long long localGpuPairs = 0, localOmpPairs = 0, localCpuPairs = 0;
+	long long localGpuKernels = 0, localOmpKernels = 0;
+	long long localGpuNs = 0, localOmpNs = 0, localCpuNs = 0;
 
 	searchCompleted = false;
 	for (loopID = 0; !searchCompleted; loopID++)
@@ -82,42 +92,52 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 				   (best first, skip pairs that share a route with an already-applied move).
 				   This amortises kernel-launch and transfer overhead: O(outer-loop
 				   iterations) launches per LS call instead of O(total moves). */
+				auto tGpu = std::chrono::steady_clock::now();
 				flattenRoutesForGpu();
 				const int nbMovesBeforeGpu = nbMoves;
 				int numPairs = buildGpuRoutePairs();
-				if (numPairs > 0 &&
-				    gpuEvaluateSwapStar(
-				        gpuLS_,
-				        gpuRouteStart_.data(), gpuRouteLen_.data(),
-				        gpuRouteDuration_.data(), gpuRouteLoad_.data(), gpuRoutePenalty_.data(),
-				        gpuRouteCustomers_.data(), gpuDeltaRemoval_.data(),
-				        gpuPairU_.data(), gpuPairV_.data(), numPairs,
-				        penaltyCapacityLS, penaltyDurationLS,
-				        gpuAllResults_.data()))
+				if (numPairs > 0)
 				{
-					// Sort per-pair results by cost (best first)
-					std::sort(gpuAllResults_.begin(), gpuAllResults_.begin() + numPairs,
-					          [](const GpuSwapStarResult& a, const GpuSwapStarResult& b)
-					          { return a.moveCost < b.moveCost; });
-
-					// Greedily apply non-conflicting improving moves
-					std::vector<bool> routeTouched(params.nbVehicles, false);
-					for (int p = 0; p < numPairs; p++)
+					localGpuKernels++;
+					localGpuPairs += numPairs;
+					if (gpuEvaluateSwapStar(
+					        gpuLS_,
+					        gpuRouteStart_.data(), gpuRouteLen_.data(),
+					        gpuRouteDuration_.data(), gpuRouteLoad_.data(), gpuRoutePenalty_.data(),
+					        gpuRouteCustomers_.data(), gpuDeltaRemoval_.data(),
+					        gpuPairU_.data(), gpuPairV_.data(), numPairs,
+					        penaltyCapacityLS, penaltyDurationLS,
+					        gpuAllResults_.data()))
 					{
-						const GpuSwapStarResult& res = gpuAllResults_[p];
-						if (res.moveCost >= -MY_EPSILON) break;   // remaining moves not improving
-						if (routeTouched[res.routeU] || routeTouched[res.routeV]) continue;
-						applyGpuSwapStarResult(res);
-						routeTouched[res.routeU] = true;
-						routeTouched[res.routeV] = true;
-						searchCompleted = false;
+						// Sort per-pair results by cost (best first)
+						std::sort(gpuAllResults_.begin(), gpuAllResults_.begin() + numPairs,
+						          [](const GpuSwapStarResult& a, const GpuSwapStarResult& b)
+						          { return a.moveCost < b.moveCost; });
+
+						// Greedily apply non-conflicting improving moves
+						std::vector<bool> routeTouched(params.nbVehicles, false);
+						for (int p = 0; p < numPairs; p++)
+						{
+							const GpuSwapStarResult& res = gpuAllResults_[p];
+							if (res.moveCost >= -MY_EPSILON) break;   // remaining moves not improving
+							if (routeTouched[res.routeU] || routeTouched[res.routeV]) continue;
+							applyGpuSwapStarResult(res);
+							routeTouched[res.routeU] = true;
+							routeTouched[res.routeV] = true;
+							localGpuApplied++;
+							searchCompleted = false;
+						}
 					}
 				}
 				// Update cutoff so the next call skips pairs unchanged since now.
 				gpuSwapStarLastNbMoves_ = nbMovesBeforeGpu;
+				localGpuNs += std::chrono::duration_cast<std::chrono::nanoseconds>(
+				    std::chrono::steady_clock::now() - tGpu).count();
 			}
 			else if (params.ap.useOpenMp && ompLS_ != nullptr)
 			{
+				auto tOmp = std::chrono::steady_clock::now();
+				localOmpKernels++;
 				if (ompLS_->runSwapStar(routes, clients, depots, orderRoutes, loopID, nbMoves, penaltyCapacityLS, penaltyDurationLS))
 				{
 					std::fill(routeTouched_.begin(), routeTouched_.end(), false);
@@ -134,6 +154,7 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 							insertNode(res.V, res.bestPositionV);
 
 						nbMoves++;
+						localOmpApplied++;
 						if (res.routeUIdx >= 0)
 						{
 							updateRouteData(&routes[res.routeUIdx]);
@@ -147,10 +168,15 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 						searchCompleted = false;
 					}
 				}
+				localOmpPairs += (long long)ompLS_->results.size();
+				localOmpNs += std::chrono::duration_cast<std::chrono::nanoseconds>(
+				    std::chrono::steady_clock::now() - tOmp).count();
 			}
 			else
 			{
-				/* Original CPU SWAP* path — completely unchanged */
+				/* Original CPU SWAP* path */
+				auto tCpu = std::chrono::steady_clock::now();
+				int nbMovesBeforeCpu = nbMoves;
 				for (int rU = 0; rU < params.nbVehicles; rU++)
 				{
 					routeU = &routes[orderRoutes[rU]];
@@ -163,11 +189,42 @@ void LocalSearch::run(Individual & indiv, double penaltyCapacityLS, double penal
 							&& (loopID == 0 || std::max<int>(routeU->whenLastModified, routeV->whenLastModified)
 								> lastTestSWAPStarRouteU))
 							if (CircleSector::overlap(routeU->sector, routeV->sector))
+							{
+								localCpuPairs++;
 								swapStar();
+							}
 					}
 				}
+				localCpuApplied += nbMoves - nbMovesBeforeCpu;
+				localCpuNs += std::chrono::duration_cast<std::chrono::nanoseconds>(
+				    std::chrono::steady_clock::now() - tCpu).count();
 			}
 		}
+	}
+
+	// Accumulate telemetry for this LS call
+	{
+		auto& tel = params.telemetry;
+		long long swapApplied = localGpuApplied + localOmpApplied + localCpuApplied;
+		tel.lsCallCount.fetch_add(1, std::memory_order_relaxed);
+		tel.lsTotalNs.fetch_add(
+		    std::chrono::duration_cast<std::chrono::nanoseconds>(
+		        std::chrono::steady_clock::now() - tRunStart).count(),
+		    std::memory_order_relaxed);
+		tel.riMovesApplied.fetch_add(
+		    (nbMoves - nbMovesAtStart) - swapApplied,
+		    std::memory_order_relaxed);
+		tel.gpuKernelCalls.fetch_add(localGpuKernels, std::memory_order_relaxed);
+		tel.gpuPairsEvaluated.fetch_add(localGpuPairs, std::memory_order_relaxed);
+		tel.gpuMovesApplied.fetch_add(localGpuApplied, std::memory_order_relaxed);
+		tel.gpuSwapStarNs.fetch_add(localGpuNs, std::memory_order_relaxed);
+		tel.ompKernelCalls.fetch_add(localOmpKernels, std::memory_order_relaxed);
+		tel.ompPairsEvaluated.fetch_add(localOmpPairs, std::memory_order_relaxed);
+		tel.ompMovesApplied.fetch_add(localOmpApplied, std::memory_order_relaxed);
+		tel.ompSwapStarNs.fetch_add(localOmpNs, std::memory_order_relaxed);
+		tel.cpuPairsEvaluated.fetch_add(localCpuPairs, std::memory_order_relaxed);
+		tel.cpuMovesApplied.fetch_add(localCpuApplied, std::memory_order_relaxed);
+		tel.cpuSwapStarNs.fetch_add(localCpuNs, std::memory_order_relaxed);
 	}
 
 	// Register the solution produced by the LS in the individual

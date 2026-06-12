@@ -25,6 +25,7 @@ SOFTWARE.*/
 
 #include "CircleSector.h"
 #include "AlgorithmParameters.h"
+#include "Telemetry.h"
 #include <string>
 #include <vector>
 #include <list>
@@ -64,6 +65,12 @@ public:
 
 	/* START TIME OF THE ALGORITHM */
 	clock_t startTime;                  // Start time of the optimization (set when Params is constructed)
+
+	/* TELEMETRY */
+	Telemetry telemetry;
+
+	/* CONVERGENCE TRACE */
+	std::string convergenceCsvPath; // if non-empty, best cost is written here every second
 
 	/* RANDOM NUMBER GENERATOR */       
 	std::minstd_rand ran;               // Using the fastest and simplest LCG. The quality of random numbers is not critical for the LS, but speed is

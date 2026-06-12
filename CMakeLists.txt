@@ -23,6 +23,8 @@ set(
     Program/InstanceCVRPLIB.cpp
     Program/AlgorithmParameters.cpp
     Program/C_Interface.cpp
+    Program/HardwareMonitor.cpp
+    Program/Telemetry.cpp
     Program/IslandModels/IslandModel.cpp
     Program/IslandModels/IslandCommunicators/MPIIslandCommunicator.cpp
     Program/IslandModels/IslandCommunicators/SynchronousMPIIslandCommunicator.cpp
@@ -39,6 +41,15 @@ set_target_properties(bin PROPERTIES
 )
 target_link_libraries(bin PRIVATE CUDA::cudart)
 
+# NVML — optional GPU utilization monitoring
+if(TARGET CUDA::nvml)
+    target_link_libraries(bin PRIVATE CUDA::nvml)
+    target_compile_definitions(bin PRIVATE HAS_NVML)
+    message(STATUS "NVML found — GPU utilization monitoring enabled")
+else()
+    message(STATUS "NVML target not found — GPU utilization monitoring disabled")
+endif()
+
 if(MPI_FOUND)
     target_link_libraries(bin PRIVATE MPI::MPI_CXX)
     target_compile_definitions(bin PRIVATE USE_MPI)
@@ -52,6 +63,6 @@ if(OpenMP_CXX_FOUND)
     target_link_libraries(bin PRIVATE OpenMP::OpenMP_CXX)
     message(STATUS "OpenMP found")
 else()
-    message(STATUS "OpenMP not found � adding /openmp manually")
+    message(STATUS "OpenMP not found � adding /openmp manually")
     target_compile_options(bin PRIVATE $<$<COMPILE_LANGUAGE:CXX>:/openmp>)
 endif()
