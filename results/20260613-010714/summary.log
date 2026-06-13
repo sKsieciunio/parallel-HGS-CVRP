@@ -1,0 +1,35 @@
+Benchmark started : 2026-06-13 01:07:14
+hgs.exe           : C:\Users\sirks\dev\parallel-HGS-CVRP\build\relwithdebinfo\RelWithDebInfo\hgs.exe
+seed              : 1
+runs planned      : 24
+
+idx  status  preset                      instance          exit   wall(s)
+---  ------  --------------------------  ----------------  -----  -------
+  1  FAIL    baseline                    XL-n2354-k631                 600
+  2  FAIL    gpu                         XL-n2354-k631                 603
+  3  FAIL    offspring16t8               XL-n2354-k631                 601
+  4  FAIL    gpu_offspring16t8           XL-n2354-k631                 604
+  5  FAIL    island8_star                XL-n2354-k631                 601
+  6  FAIL    island8_star_gpu_off16t8    XL-n2354-k631                 606
+  7  FAIL    baseline                    XL-n2634-k17                  601
+  8  FAIL    gpu                         XL-n2634-k17                  605
+  9  FAIL    offspring16t8               XL-n2634-k17                  601
+ 10  FAIL    gpu_offspring16t8           XL-n2634-k17                  602
+ 11  FAIL    island8_star                XL-n2634-k17                  603
+ 12  FAIL    island8_star_gpu_off16t8    XL-n2634-k17                  604
+ 13  FAIL    baseline                    XL-n5288-k1246                601
+ 14  FAIL    gpu                         XL-n5288-k1246                603
+ 15  FAIL    offspring16t8               XL-n5288-k1246                601
+ 16  FAIL    gpu_offspring16t8           XL-n5288-k1246                602
+ 17  FAIL    island8_star                XL-n5288-k1246                604
+ 18  FAIL    island8_star_gpu_off16t8    XL-n5288-k1246                622
+ 19  FAIL    baseline                    XL-n5174-k55                  617
+ 20  FAIL    gpu                         XL-n5174-k55                  601
+ 21  FAIL    offspring16t8               XL-n5174-k55                  280
+ 22  FAIL    gpu_offspring16t8           XL-n5174-k55                    0
+ 23  FAIL    island8_star                XL-n5174-k55                    0
+ 24  FAIL    island8_star_gpu_off16t8    XL-n5174-k55                    0
+
+Finished  : 2026-06-13 04:33:14
+Wall time : 03:26:00
+OK / FAIL / SKIP : 0 / 24 / 0

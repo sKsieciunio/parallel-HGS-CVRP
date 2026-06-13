@@ -1,0 +1,2 @@
+ERROR: ReadFile() failed, error 109
+ERROR: Error: unable to start the local smpd manager.

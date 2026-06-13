@@ -1,0 +1,96 @@
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 0
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 0
+---- numOffspring			   is set to 12
+---- numThreadsOffspring	   is set to 12
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 0
+---- topology							   is set to 0
+---- nbNodes							   is set to 1
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2354-k631.vrp
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 823 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2353 CLIENTS AND 823 VEHICLES
+----- BUILDING INITIAL POPULATION
+----- STARTING GENETIC ALGORITHM
+It      0      2 | T(s) 8.35 | Feas 52 960870.00 962247.88 | Inf 15 960748.40 963192.01 | Div 0.77 0.77 | Feas 0.85 1.00 | Pen 105.40 0.85
+It    500     30 | T(s) 33.06 | Feas 65 951988.00 952879.36 | Inf 35 952166.56 953136.85 | Div 0.69 0.73 | Feas 0.13 1.00 | Pen 218.56 0.38
+It   1000      5 | T(s) 57.85 | Feas 58 950852.00 951430.40 | Inf 64 951257.93 951825.77 | Div 0.67 0.68 | Feas 0.30 1.00 | Pen 222.93 0.17
+It   1500     48 | T(s) 82.81 | Feas 39 950385.00 950772.80 | Inf 61 950385.46 950958.86 | Div 0.72 0.69 | Feas 0.26 1.00 | Pen 272.86 0.10
+It   2000     14 | T(s) 108.08 | Feas 61 949657.00 950216.80 | Inf 55 949992.86 950533.44 | Div 0.67 0.68 | Feas 0.22 1.00 | Pen 272.86 0.10
+It   2500    367 | T(s) 133.02 | Feas 34 949578.00 950352.56 | Inf 59 949875.44 950355.02 | Div 0.73 0.67 | Feas 0.24 1.00 | Pen 327.44 0.10
+It   3000    218 | T(s) 157.10 | Feas 34 949297.00 949889.08 | Inf 54 949591.93 950203.03 | Div 0.72 0.66 | Feas 0.11 1.00 | Pen 392.93 0.10
+It   3500    188 | T(s) 181.85 | Feas 45 948928.00 949749.68 | Inf 39 949108.99 949877.50 | Div 0.71 0.70 | Feas 0.19 1.00 | Pen 333.99 0.10
+It   4000    445 | T(s) 208.07 | Feas 26 948838.00 949902.12 | Inf 35 949082.99 949706.30 | Div 0.74 0.66 | Feas 0.18 1.00 | Pen 333.99 0.10
+It   4500     16 | T(s) 233.22 | Feas 59 948559.00 949307.24 | Inf 34 948904.78 949650.91 | Div 0.65 0.68 | Feas 0.14 1.00 | Pen 400.78 0.10
+It   5000     71 | T(s) 258.68 | Feas 34 948448.00 948985.76 | Inf 65 948773.78 949337.57 | Div 0.68 0.62 | Feas 0.19 1.00 | Pen 400.78 0.10
+It   5500    571 | T(s) 284.76 | Feas 51 948448.00 948812.68 | Inf 45 948584.80 949216.95 | Div 0.62 0.62 | Feas 0.25 1.00 | Pen 408.80 0.10
+It   6000     97 | T(s) 309.77 | Feas 27 948183.00 949137.16 | Inf 29 948523.48 949174.07 | Div 0.72 0.67 | Feas 0.16 1.00 | Pen 347.48 0.10
+It   6500     70 | T(s) 334.22 | Feas 64 948168.00 948741.76 | Inf 28 948515.48 949203.79 | Div 0.63 0.68 | Feas 0.20 1.00 | Pen 347.48 0.10
+It   7000    570 | T(s) 359.14 | Feas 59 948168.00 948603.88 | Inf 62 948509.95 949061.49 | Div 0.62 0.63 | Feas 0.24 1.00 | Pen 416.98 0.10
+It   7500   1070 | T(s) 384.11 | Feas 27 948168.00 948667.44 | Inf 41 948399.03 948954.02 | Div 0.69 0.64 | Feas 0.28 1.00 | Pen 361.52 0.10
+It   8000   1570 | T(s) 409.00 | Feas 42 948168.00 948521.80 | Inf 39 948543.64 949031.90 | Div 0.63 0.66 | Feas 0.14 1.00 | Pen 433.82 0.10
+It   8500      6 | T(s) 433.81 | Feas 54 948005.00 948382.00 | Inf 55 948413.50 948820.01 | Div 0.61 0.61 | Feas 0.19 1.00 | Pen 368.75 0.10
+It   9000    506 | T(s) 459.99 | Feas 29 948005.00 948562.76 | Inf 48 948404.75 948895.33 | Div 0.68 0.64 | Feas 0.17 1.00 | Pen 368.75 0.10
+It   9500    458 | T(s) 486.00 | Feas 63 947903.00 948414.32 | Inf 27 948272.75 949422.21 | Div 0.61 0.72 | Feas 0.23 1.00 | Pen 368.75 0.10
+It  10000    284 | T(s) 511.38 | Feas 41 947790.00 948329.20 | Inf 51 948245.75 948657.96 | Div 0.64 0.63 | Feas 0.20 1.00 | Pen 368.75 0.10
+It  10500    784 | T(s) 535.96 | Feas 65 947790.00 948173.16 | Inf 32 948196.70 948851.04 | Div 0.59 0.69 | Feas 0.19 1.00 | Pen 319.70 0.10
+It  11000   1284 | T(s) 560.98 | Feas 60 947790.00 948210.12 | Inf 30 948260.65 949053.39 | Div 0.60 0.70 | Feas 0.22 1.00 | Pen 383.65 0.10
+It  11500   1784 | T(s) 587.00 | Feas 64 947790.00 948309.32 | Inf 60 948260.65 948702.57 | Div 0.62 0.64 | Feas 0.24 1.00 | Pen 383.65 0.10
+----- GENETIC ALGORITHM FINISHED AFTER 11732 ITERATIONS. TIME SPENT: 600.083
+
+====== TELEMETRY SUMMARY ==============================
+  instance : C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2354-k631.vrp
+  seed     : 1
+  mode     : single
+  best     : 947790.00
+  iter     : 11732
+  time(s)  : 600.118
+
+  -- Local search --
+  LS calls   : 16537
+  LS time(ms): 502998
+  RI moves   : 5468163
+  RI time(ms): 225499  (derived: LS - SWAP*)
+  SS time(ms): 277499
+
+  -- CPU SWAP* --
+  pairs eval    : 265269938
+  moves applied : 3116999  (hit rate: 1.2%)
+  time(ms)      : 277499
+=======================================================
+
+
+  -- Hardware utilization (1173 samples @ 500ms) --
+  CPU avg util : 8.2 %
+  GPU core avg : 1.2 %
+  GPU mem  avg : 15.1 %
+=======================================================
+

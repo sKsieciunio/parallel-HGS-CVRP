@@ -1,0 +1,2 @@
+instance;seed;mode;bestCost;totalIter;totalTimeSec;lsCallCount;lsTotalMs;riMovesApplied;gpuKernelCalls;gpuPairsEvaluated;gpuMovesApplied;gpuSwapStarMs;ompKernelCalls;ompPairsEvaluated;ompMovesApplied;ompSwapStarMs;cpuPairsEvaluated;cpuMovesApplied;cpuSwapStarMs;offspringRounds;offspringGenerated;offspringMs;migrationsSent;migrationsReceived;hwSamples;avgCpuUtil;avgGpuCoreUtil;avgGpuMemUtil
+C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2634-k17.vrp;1;single;33220.00;2611;600.662;2779;597763;4246747;0;0;0;0;0;0;0;0;1034984;277946;517589;0;0;0;0;0;1172;8.3;6.8;11.0
