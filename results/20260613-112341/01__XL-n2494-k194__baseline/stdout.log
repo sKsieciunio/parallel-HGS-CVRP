@@ -1,0 +1,94 @@
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 0
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 0
+---- numOffspring			   is set to 12
+---- numThreadsOffspring	   is set to 12
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 0
+---- topology							   is set to 0
+---- nbNodes							   is set to 1
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- BUILDING INITIAL POPULATION
+----- STARTING GENETIC ALGORITHM
+It      0      2 | T(s) 20.10 | Feas 59 369731.00 370145.00 | Inf 1 370478.37 370478.37 | Div 0.78 -nan(ind) | Feas 0.99 1.00 | Pen 10.37 0.85
+It    500     23 | T(s) 48.68 | Feas 48 368049.00 368214.24 | Inf 56 367529.92 368023.21 | Div 0.72 0.73 | Feas 0.31 1.00 | Pen 4.60 0.38
+It   1000    271 | T(s) 76.87 | Feas 36 367532.00 367869.36 | Inf 49 366958.41 367341.92 | Div 0.74 0.74 | Feas 0.25 1.00 | Pen 5.52 0.17
+It   1500    152 | T(s) 105.29 | Feas 52 367397.00 367594.52 | Inf 38 366923.58 367149.89 | Div 0.71 0.75 | Feas 0.21 1.00 | Pen 5.63 0.10
+It   2000    190 | T(s) 134.51 | Feas 54 367289.00 367463.52 | Inf 62 366362.19 366708.79 | Div 0.69 0.72 | Feas 0.33 1.00 | Pen 4.88 0.10
+It   2500    168 | T(s) 163.14 | Feas 45 367238.00 367382.72 | Inf 62 366243.03 366590.90 | Div 0.69 0.70 | Feas 0.19 1.00 | Pen 4.98 0.10
+It   3000    324 | T(s) 191.14 | Feas 52 367186.00 367298.72 | Inf 52 366248.01 366674.52 | Div 0.68 0.74 | Feas 0.30 1.00 | Pen 5.08 0.10
+It   3500     93 | T(s) 218.83 | Feas 65 366911.00 367175.96 | Inf 30 366253.09 366589.63 | Div 0.65 0.75 | Feas 0.29 1.00 | Pen 5.18 0.10
+It   4000    311 | T(s) 244.91 | Feas 64 366852.00 367092.72 | Inf 54 366253.09 366503.41 | Div 0.63 0.72 | Feas 0.23 1.00 | Pen 5.18 0.10
+It   4500    479 | T(s) 271.10 | Feas 62 366842.00 367055.20 | Inf 45 366106.69 366459.24 | Div 0.64 0.72 | Feas 0.16 1.00 | Pen 5.29 0.10
+It   5000    198 | T(s) 297.66 | Feas 38 366770.00 367014.48 | Inf 30 366035.25 366409.49 | Div 0.66 0.73 | Feas 0.21 1.00 | Pen 5.39 0.10
+It   5500    250 | T(s) 323.66 | Feas 36 366738.00 366971.36 | Inf 51 365975.95 366287.57 | Div 0.65 0.68 | Feas 0.30 1.00 | Pen 5.50 0.10
+It   6000     56 | T(s) 349.73 | Feas 29 366691.00 366968.56 | Inf 35 365893.30 366163.33 | Div 0.68 0.67 | Feas 0.18 1.00 | Pen 4.67 0.10
+It   6500    556 | T(s) 375.49 | Feas 25 366691.00 366967.20 | Inf 60 365949.05 366176.24 | Div 0.69 0.61 | Feas 0.20 1.00 | Pen 5.72 0.10
+It   7000    242 | T(s) 402.08 | Feas 47 366651.00 366899.04 | Inf 62 365903.13 366187.85 | Div 0.66 0.61 | Feas 0.22 1.00 | Pen 7.00 0.10
+It   7500    742 | T(s) 428.71 | Feas 59 366651.00 366811.24 | Inf 40 365835.56 366118.85 | Div 0.56 0.61 | Feas 0.21 1.00 | Pen 5.95 0.10
+It   8000    412 | T(s) 454.94 | Feas 37 366605.00 366895.76 | Inf 41 365835.56 366120.36 | Div 0.69 0.61 | Feas 0.18 1.00 | Pen 5.95 0.10
+It   8500     86 | T(s) 481.58 | Feas 37 366528.00 366773.92 | Inf 31 365814.49 366093.28 | Div 0.65 0.56 | Feas 0.21 1.00 | Pen 6.07 0.10
+It   9000    586 | T(s) 507.32 | Feas 39 366528.00 366741.24 | Inf 53 365755.85 365977.73 | Div 0.62 0.52 | Feas 0.25 1.00 | Pen 6.07 0.10
+It   9500   1086 | T(s) 532.98 | Feas 36 366528.00 366747.84 | Inf 35 365677.89 366019.81 | Div 0.66 0.68 | Feas 0.19 1.00 | Pen 5.16 0.10
+It  10000   1586 | T(s) 559.98 | Feas 29 366528.00 366767.24 | Inf 26 365762.40 366139.15 | Div 0.64 0.70 | Feas 0.23 1.00 | Pen 6.19 0.10
+It  10500    334 | T(s) 587.53 | Feas 50 366380.00 366647.20 | Inf 63 365624.09 366034.22 | Div 0.59 0.63 | Feas 0.09 1.00 | Pen 6.44 0.10
+----- GENETIC ALGORITHM FINISHED AFTER 10718 ITERATIONS. TIME SPENT: 600.019
+
+====== TELEMETRY SUMMARY ==============================
+  instance : C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+  seed     : 1
+  mode     : single
+  best     : 366131.00
+  iter     : 10718
+  time(s)  : 600.294
+
+  -- Local search --
+  LS calls   : 14987
+  LS time(ms): 577240
+  RI moves   : 6572333
+  RI time(ms): 215531  (derived: LS - SWAP*)
+  SS time(ms): 361709
+
+  -- CPU SWAP* --
+  pairs eval    : 96924402
+  moves applied : 3767575  (hit rate: 3.9%)
+  time(ms)      : 361709
+=======================================================
+
+
+  -- Hardware utilization (1175 samples @ 500ms) --
+  CPU avg util : 8.2 %
+  GPU core avg : 0.6 %
+  GPU mem  avg : 8.5 %
+=======================================================
+

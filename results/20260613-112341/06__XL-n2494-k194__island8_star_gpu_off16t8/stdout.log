@@ -1,0 +1,400 @@
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+=========== Algorithm Parameters =================
+---- seed                    is set to 1
+---- nbGranular              is set to 20
+---- nbIter                  is set to 20000
+---- mu                      is set to 25
+---- nbIterTraces            is set to 500
+---- lambda                  is set to 40
+---- timeLimit               is set to 600
+---- nbElite                 is set to 4
+---- useSwapStar             is set to 1
+---- nbClose                 is set to 5
+---- useGpu                  is set to 1
+---- nbIterPenaltyManagement is set to 100
+---- useOpenMp               is set to 0
+---- targetFeasible          is set to 0.2
+---- makeManyOffspring	   is set to 1
+---- penaltyDecrease         is set to 0.85
+---- numOffspring			   is set to 16
+---- penaltyIncrease         is set to 1.2
+---- numThreadsOffspring	   is set to 8
+---- seed                    is set to 1
+==================================================
+---- nbIter                  is set to 20000
+=========== Island Model Parameters ==============
+---- nbIterTraces            is set to 500
+---- useIslandModel					   is set to 1
+---- topology							   is set to 3
+---- timeLimit               is set to 600
+---- nbNodes							   is set to 8
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 1
+---- topologyDegree					   is set to 3
+---- useOpenMp               is set to 0
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+=========== Algorithm Parameters =================
+---- maxReceiveInterval				   is set to 100
+---- nbGranular              is set to 20
+---- migrantSelector					   is set to 0
+---- mu                      is set to 25
+---- selectionCount					   is set to 1
+---- lambda                  is set to 40
+---- islandCommunicator				   is set to 0
+---- nbElite                 is set to 4
+==================================================
+---- makeManyOffspring	   is set to 1
+---- nbClose                 is set to 5
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+---- numOffspring			   is set to 16
+---- nbIterPenaltyManagement is set to 100
+---- numThreadsOffspring	   is set to 8
+---- targetFeasible          is set to 0.2
+==================================================
+---- penaltyDecrease         is set to 0.85
+=========== Island Model Parameters ==============
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useIslandModel					   is set to 1
+---- useSwapStar             is set to 1
+---- topology							   is set to 3
+---- useGpu                  is set to 1
+---- nbNodes							   is set to 8
+---- useOpenMp               is set to 0
+---- topologyDegree					   is set to 3
+---- makeManyOffspring	   is set to 1
+---- migrationPolicy					   is set to 0
+---- numOffspring			   is set to 16
+---- interval							   is set to 20
+---- numThreadsOffspring	   is set to 8
+---- warmup							   is set to 20
+==================================================
+---- sendCooldown						   is set to 20
+=========== Island Model Parameters ==============
+---- receiveStagnationThreshold		   is set to 20
+---- useIslandModel					   is set to 1
+---- topology							   is set to 3
+---- minReceiveInterval				   is set to 20
+---- nbNodes							   is set to 8
+---- maxReceiveInterval				   is set to 100
+---- topologyDegree					   is set to 3
+---- migrantSelector					   is set to 0
+---- migrationPolicy					   is set to 0
+---- selectionCount					   is set to 1
+---- interval							   is set to 20
+---- islandCommunicator				   is set to 0
+---- warmup							   is set to 20
+==================================================
+---- sendCooldown						   is set to 20
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 1
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 1
+---- numOffspring			   is set to 16
+---- numThreadsOffspring	   is set to 8
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 1
+---- topology							   is set to 3
+---- nbNodes							   is set to 8
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 1
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 1
+---- numOffspring			   is set to 16
+---- numThreadsOffspring	   is set to 8
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 1
+---- topology							   is set to 3
+---- nbNodes							   is set to 8
+=========== Algorithm Parameters =================
+---- topologyDegree					   is set to 3
+---- nbGranular              is set to 20
+---- migrationPolicy					   is set to 0
+---- mu                      is set to 25
+---- interval							   is set to 20
+---- lambda                  is set to 40
+---- warmup							   is set to 20
+---- nbElite                 is set to 4
+---- sendCooldown						   is set to 20
+---- nbClose                 is set to 5
+---- receiveStagnationThreshold		   is set to 20
+---- nbIterPenaltyManagement is set to 100
+---- minReceiveInterval				   is set to 20
+---- targetFeasible          is set to 0.2
+---- maxReceiveInterval				   is set to 100
+---- penaltyDecrease         is set to 0.85
+---- migrantSelector					   is set to 0
+---- penaltyIncrease         is set to 1.2
+---- selectionCount					   is set to 1
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- islandCommunicator				   is set to 0
+---- timeLimit               is set to 600
+==================================================
+---- useSwapStar             is set to 1
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+---- useGpu                  is set to 1
+=========== Algorithm Parameters =================
+---- useOpenMp               is set to 0
+---- nbGranular              is set to 20
+---- makeManyOffspring	   is set to 1
+---- mu                      is set to 25
+---- numOffspring			   is set to 16
+---- lambda                  is set to 40
+---- numThreadsOffspring	   is set to 8
+---- nbElite                 is set to 4
+==================================================
+---- nbClose                 is set to 5
+=========== Island Model Parameters ==============
+---- nbIterPenaltyManagement is set to 100
+---- useIslandModel					   is set to 1
+---- targetFeasible          is set to 0.2
+---- topology							   is set to 3
+---- penaltyDecrease         is set to 0.85
+---- nbNodes							   is set to 8
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- topologyDegree					   is set to 3
+---- nbIterTraces            is set to 500
+---- migrationPolicy					   is set to 0
+---- timeLimit               is set to 600
+---- interval							   is set to 20
+---- useSwapStar             is set to 1
+---- warmup							   is set to 20
+---- useGpu                  is set to 1
+---- sendCooldown						   is set to 20
+---- useOpenMp               is set to 0
+---- receiveStagnationThreshold		   is set to 20
+---- makeManyOffspring	   is set to 1
+---- minReceiveInterval				   is set to 20
+---- numOffspring			   is set to 16
+---- maxReceiveInterval				   is set to 100
+---- numThreadsOffspring	   is set to 8
+---- migrantSelector					   is set to 0
+==================================================
+---- selectionCount					   is set to 1
+=========== Island Model Parameters ==============
+---- islandCommunicator				   is set to 0
+---- useIslandModel					   is set to 1
+==================================================
+---- topology							   is set to 3
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+---- nbNodes							   is set to 8
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 1
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 1
+---- numOffspring			   is set to 16
+---- numThreadsOffspring	   is set to 8
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 1
+---- topology							   is set to 3
+---- nbNodes							   is set to 8
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 2493 CLIENTS AND 255 VEHICLES
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- BUILDING INITIAL POPULATION
+----- STARTING GENETIC ALGORITHM
+It      0      1 | T(s) 17.44 | Feas 33 368917.00 369410.72 | Inf 1 369100.37 369100.37 | Div 0.73 -nan(ind) | Feas 0.99 1.00 | Pen 10.37 0.85
+----- STARTING GENETIC ALGORITHM
+----- STARTING GENETIC ALGORITHM
+----- STARTING GENETIC ALGORITHM
+It      0      1 | T(s) 18.14 | Feas 33 368731.00 369415.24 | Inf 2 370806.37 370891.42 | Div 0.74 0.75 | Feas 0.99 1.00 | Pen 10.37 0.85
+----- STARTING GENETIC ALGORITHM
+It      0      1 | T(s) 18.19 | Feas 32 368649.00 369288.28 | Inf 2 369708.37 370050.87 | Div 0.73 0.76 | Feas 1.00 1.00 | Pen 10.37 0.85
+It      0      1 | T(s) 18.16 | Feas 33 368727.00 369278.60 | Inf 1 369198.37 369198.37 | Div 0.74 -nan(ind) | Feas 0.99 1.00 | Pen 10.37 0.85
+----- STARTING GENETIC ALGORITHM
+----- STARTING GENETIC ALGORITHM
+----- STARTING GENETIC ALGORITHM
+It      0      1 | T(s) 18.79 | Feas 33 368843.00 369211.88 | Inf 1 369620.37 369620.37 | Div 0.74 -nan(ind) | Feas 0.99 1.00 | Pen 10.37 0.85
+It      0      2 | T(s) 18.93 | Feas 34 368983.00 369446.44 | NO-INFEASIBLE | Div 0.74 -1.00 | Feas 1.00 1.00 | Pen 10.37 0.85
+It      0      1 | T(s) 18.99 | Feas 33 368556.00 369307.32 | Inf 5 370448.37 370881.64 | Div 0.74 0.74 | Feas 0.95 1.00 | Pen 10.37 0.85
+It      0      1 | T(s) 19.37 | Feas 33 368579.00 369258.48 | Inf 2 369747.37 370610.05 | Div 0.73 0.75 | Feas 0.98 1.00 | Pen 10.37 0.85
+It    500     37 | T(s) 327.70 | Feas 44 365725.00 366078.44 | Inf 39 365720.41 365959.53 | Div 0.55 0.49 | Feas 0.27 1.00 | Pen 5.41 0.38
+It    500     12 | T(s) 327.85 | Feas 37 365576.00 365849.56 | Inf 32 365419.12 365760.58 | Div 0.42 0.62 | Feas 0.37 1.00 | Pen 4.60 0.38
+It    500     13 | T(s) 330.18 | Feas 44 366160.00 366356.16 | Inf 57 365792.56 366015.90 | Div 0.50 0.61 | Feas 0.31 1.00 | Pen 4.60 0.38
+It    500      8 | T(s) 330.27 | Feas 64 366131.00 366339.84 | Inf 33 365617.17 366140.68 | Div 0.47 0.69 | Feas 0.36 1.00 | Pen 4.60 0.38
+It    500     47 | T(s) 332.23 | Feas 45 365693.00 366009.32 | Inf 59 365472.80 365718.44 | Div 0.58 0.59 | Feas 0.27 1.00 | Pen 4.60 0.38
+It    500     27 | T(s) 333.39 | Feas 30 365812.00 366266.12 | Inf 54 365646.01 366018.74 | Div 0.65 0.66 | Feas 0.37 1.00 | Pen 4.60 0.38
+It    500     93 | T(s) 335.77 | Feas 53 366314.00 366504.40 | Inf 44 365780.50 366221.14 | Div 0.57 0.67 | Feas 0.36 1.00 | Pen 4.60 0.38
+It    500     64 | T(s) 336.21 | Feas 50 366136.00 366287.92 | Inf 50 365569.74 365976.91 | Div 0.56 0.62 | Feas 0.32 1.00 | Pen 4.60 0.38
+----- GENETIC ALGORITHM FINISHED AFTER 927 ITERATIONS. TIME SPENT: 600.055
+----- GENETIC ALGORITHM FINISHED AFTER 894 ITERATIONS. TIME SPENT: 600.075
+----- GENETIC ALGORITHM FINISHED AFTER 878 ITERATIONS. TIME SPENT: 600.082
+----- GENETIC ALGORITHM FINISHED AFTER 889 ITERATIONS. TIME SPENT: 600.081
+----- GENETIC ALGORITHM FINISHED AFTER 932 ITERATIONS. TIME SPENT: 600.154
+----- GENETIC ALGORITHM FINISHED AFTER 861 ITERATIONS. TIME SPENT: 600.16
+----- GENETIC ALGORITHM FINISHED AFTER 901 ITERATIONS. TIME SPENT: 600.14
+----- GENETIC ALGORITHM FINISHED AFTER 907 ITERATIONS. TIME SPENT: 600.155
+----- BEST GLOBAL COST: 365350
+
+====== TELEMETRY SUMMARY ==============================
+  instance : C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n2494-k194.vrp
+  seed     : 1
+  mode     : island8+star+fixed+gpu+offspring16t8
+  best     : 365350.00
+  iter     : 907
+  time(s)  : 600.598
+
+  -- Local search --
+  LS calls   : 18954
+  LS time(ms): 2276109
+  RI moves   : 8565351
+  RI time(ms): 1802088  (derived: LS - SWAP*)
+  SS time(ms): 474021
+
+  -- GPU SWAP* --
+  kernel calls  : 226725
+  pairs eval    : 127224697  (avg/call: 561)
+  moves applied : 1838643  (hit rate: 1.4%)
+  time(ms)      : 474021
+
+  -- Parallel offspring --
+  rounds      : 907
+  generated   : 14512
+  time(ms)    : 580329
+
+  -- Island migrations --
+  sent     : 322
+  received : 298
+=======================================================
+
+
+  -- Hardware utilization (1170 samples @ 500ms) --
+  CPU avg util : 11.1 %
+  GPU core avg : 46.7 %
+  GPU mem  avg : 6.2 %
+=======================================================
+

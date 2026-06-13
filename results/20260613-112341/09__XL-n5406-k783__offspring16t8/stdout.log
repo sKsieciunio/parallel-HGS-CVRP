@@ -1,0 +1,79 @@
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 0
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 1
+---- numOffspring			   is set to 16
+---- numThreadsOffspring	   is set to 8
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 0
+---- topology							   is set to 0
+---- nbNodes							   is set to 1
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n5406-k783.vrp
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 1020 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 5405 CLIENTS AND 1020 VEHICLES
+----- BUILDING INITIAL POPULATION
+----- STARTING GENETIC ALGORITHM
+It      0      1 | T(s) 44.02 | Feas 32 1063165.00 1064533.88 | Inf 2 1064249.77 1064708.08 | Div 0.77 0.85 | Feas 0.99 1.00 | Pen 117.38 0.85
+It    500     17 | T(s) 353.92 | Feas 63 1055633.00 1056289.76 | Inf 27 1055771.89 1057127.03 | Div 0.48 0.67 | Feas 0.24 1.00 | Pen 72.09 0.38
+----- GENETIC ALGORITHM FINISHED AFTER 886 ITERATIONS. TIME SPENT: 600.087
+
+====== TELEMETRY SUMMARY ==============================
+  instance : C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n5406-k783.vrp
+  seed     : 1
+  mode     : single+offspring16t8
+  best     : 1054616.00
+  iter     : 886
+  time(s)  : 600.323
+
+  -- Local search --
+  LS calls   : 19643
+  LS time(ms): 3608421
+  RI moves   : 9415059
+  RI time(ms): 2005588  (derived: LS - SWAP*)
+  SS time(ms): 1602833
+
+  -- CPU SWAP* --
+  pairs eval    : 531122524
+  moves applied : 5803673  (hit rate: 1.1%)
+  time(ms)      : 1602833
+
+  -- Parallel offspring --
+  rounds      : 886
+  generated   : 14176
+  time(ms)    : 556558
+=======================================================
+
+
+  -- Hardware utilization (1169 samples @ 500ms) --
+  CPU avg util : 60.0 %
+  GPU core avg : 0.0 %
+  GPU mem  avg : 16.3 %
+=======================================================
+

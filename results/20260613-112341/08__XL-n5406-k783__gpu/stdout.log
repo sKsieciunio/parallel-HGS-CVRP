@@ -1,0 +1,83 @@
+=========== Algorithm Parameters =================
+---- nbGranular              is set to 20
+---- mu                      is set to 25
+---- lambda                  is set to 40
+---- nbElite                 is set to 4
+---- nbClose                 is set to 5
+---- nbIterPenaltyManagement is set to 100
+---- targetFeasible          is set to 0.2
+---- penaltyDecrease         is set to 0.85
+---- penaltyIncrease         is set to 1.2
+---- seed                    is set to 1
+---- nbIter                  is set to 20000
+---- nbIterTraces            is set to 500
+---- timeLimit               is set to 600
+---- useSwapStar             is set to 1
+---- useGpu                  is set to 1
+---- useOpenMp               is set to 0
+---- makeManyOffspring	   is set to 0
+---- numOffspring			   is set to 12
+---- numThreadsOffspring	   is set to 12
+==================================================
+=========== Island Model Parameters ==============
+---- useIslandModel					   is set to 0
+---- topology							   is set to 0
+---- nbNodes							   is set to 1
+---- topologyDegree					   is set to 3
+---- migrationPolicy					   is set to 0
+---- interval							   is set to 20
+---- warmup							   is set to 20
+---- sendCooldown						   is set to 20
+---- receiveStagnationThreshold		   is set to 20
+---- minReceiveInterval				   is set to 20
+---- maxReceiveInterval				   is set to 100
+---- migrantSelector					   is set to 0
+---- selectionCount					   is set to 1
+---- islandCommunicator				   is set to 0
+==================================================
+----- READING INSTANCE: C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n5406-k783.vrp
+----- FLEET SIZE WAS NOT SPECIFIED: DEFAULT INITIALIZATION TO 1020 VEHICLES
+----- INSTANCE SUCCESSFULLY LOADED WITH 5405 CLIENTS AND 1020 VEHICLES
+----- BUILDING INITIAL POPULATION
+----- STARTING GENETIC ALGORITHM
+It      0      2 | T(s) 22.48 | Feas 60 1061097.00 1062012.68 | Inf 1 1062133.62 1062133.62 | Div 0.79 -nan(ind) | Feas 0.99 1.00 | Pen 117.38 0.85
+It    500     79 | T(s) 84.11 | Feas 48 1058807.00 1059571.68 | Inf 51 1059234.17 1059980.93 | Div 0.69 0.68 | Feas 0.22 1.00 | Pen 169.03 0.38
+It   1000    168 | T(s) 149.19 | Feas 65 1058271.00 1058685.72 | Inf 52 1058664.90 1059174.16 | Div 0.64 0.69 | Feas 0.13 1.00 | Pen 206.90 0.17
+It   1500    668 | T(s) 212.12 | Feas 28 1058271.00 1058660.72 | Inf 44 1058631.24 1059081.56 | Div 0.74 0.71 | Feas 0.24 1.00 | Pen 253.24 0.10
+It   2000    227 | T(s) 274.97 | Feas 41 1057986.00 1058474.04 | Inf 61 1058156.97 1058639.70 | Div 0.71 0.66 | Feas 0.21 1.00 | Pen 182.97 0.10
+It   2500    231 | T(s) 337.24 | Feas 43 1057550.00 1058065.76 | Inf 42 1057865.88 1058412.27 | Div 0.62 0.68 | Feas 0.23 1.00 | Pen 186.63 0.10
+It   3000    304 | T(s) 400.84 | Feas 58 1057100.00 1057680.24 | Inf 40 1057661.95 1058158.79 | Div 0.58 0.63 | Feas 0.17 1.00 | Pen 223.95 0.10
+It   3500    215 | T(s) 460.84 | Feas 54 1056954.00 1057436.76 | Inf 26 1057186.74 1058130.58 | Div 0.55 0.70 | Feas 0.25 1.00 | Pen 268.74 0.10
+It   4000     51 | T(s) 525.20 | Feas 26 1056748.00 1057407.16 | Inf 61 1057146.43 1057681.42 | Div 0.68 0.59 | Feas 0.16 1.00 | Pen 228.43 0.10
+It   4500    551 | T(s) 585.18 | Feas 63 1056748.00 1057148.80 | Inf 41 1057146.43 1057533.33 | Div 0.54 0.61 | Feas 0.25 1.00 | Pen 228.43 0.10
+----- GENETIC ALGORITHM FINISHED AFTER 4618 ITERATIONS. TIME SPENT: 600.041
+
+====== TELEMETRY SUMMARY ==============================
+  instance : C:\Users\sirks\dev\parallel-HGS-CVRP\Instances\CVRP\XL-n5406-k783.vrp
+  seed     : 1
+  mode     : single+gpu
+  best     : 1056748.00
+  iter     : 4618
+  time(s)  : 600.279
+
+  -- Local search --
+  LS calls   : 6518
+  LS time(ms): 497986
+  RI moves   : 7565660
+  RI time(ms): 296713  (derived: LS - SWAP*)
+  SS time(ms): 201273
+
+  -- GPU SWAP* --
+  kernel calls  : 98166
+  pairs eval    : 277430144  (avg/call: 2826)
+  moves applied : 1550286  (hit rate: 0.6%)
+  time(ms)      : 201273
+=======================================================
+
+
+  -- Hardware utilization (1172 samples @ 500ms) --
+  CPU avg util : 8.3 %
+  GPU core avg : 15.0 %
+  GPU mem  avg : 12.6 %
+=======================================================
+

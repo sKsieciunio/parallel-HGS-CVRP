@@ -1,0 +1,29 @@
+Benchmark started : 2026-06-13 11:23:41
+hgs.exe           : C:\Users\sirks\dev\parallel-HGS-CVRP\build\relwithdebinfo\RelWithDebInfo\hgs.exe
+seed              : 1
+runs planned      : 18
+
+idx  status  preset                      instance          exit   wall(s)
+---  ------  --------------------------  ----------------  -----  -------
+  1  FAIL    baseline                    XL-n2494-k194                 606
+  2  FAIL    gpu                         XL-n2494-k194                 603
+  3  FAIL    offspring16t8               XL-n2494-k194                 601
+  4  FAIL    gpu_offspring16t8           XL-n2494-k194                 601
+  5  FAIL    island8_star                XL-n2494-k194                 601
+  6  FAIL    island8_star_gpu_off16t8    XL-n2494-k194                 601
+  7  FAIL    baseline                    XL-n5406-k783                 608
+  8  FAIL    gpu                         XL-n5406-k783                 603
+  9  FAIL    offspring16t8               XL-n5406-k783                 603
+ 10  FAIL    gpu_offspring16t8           XL-n5406-k783                 601
+ 11  FAIL    island8_star                XL-n5406-k783                 601
+ 12  FAIL    island8_star_gpu_off16t8    XL-n5406-k783                 603
+ 13  FAIL    baseline                    XL-n10001-k1570               601
+ 14  FAIL    gpu                         XL-n10001-k1570               613
+ 15  FAIL    offspring16t8               XL-n10001-k1570               603
+ 16  FAIL    gpu_offspring16t8           XL-n10001-k1570               602
+ 17  FAIL    island8_star                XL-n10001-k1570               602
+ 18  FAIL    island8_star_gpu_off16t8    XL-n10001-k1570               606
+
+Finished  : 2026-06-13 14:24:40
+Wall time : 03:01:59
+OK / FAIL / SKIP : 0 / 18 / 0

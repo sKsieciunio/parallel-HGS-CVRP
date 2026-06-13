@@ -47,10 +47,14 @@ Write-Host ""
 
 # ── Instance list ─────────────────────────────────────────────────────────────
 $instances = @(
-    [pscustomobject]@{ Stem="XL-n2354-k631";  Desc="~2.4k clients,  631 veh" }
-    [pscustomobject]@{ Stem="XL-n2634-k17";   Desc="~2.6k clients,   17 veh" }
-    [pscustomobject]@{ Stem="XL-n5288-k1246"; Desc="~5.3k clients, 1246 veh" }
-    [pscustomobject]@{ Stem="XL-n5174-k55";   Desc="~5.2k clients,   55 veh" }
+    # [pscustomobject]@{ Stem="XL-n2354-k631";  Desc="~2.4k clients,  631 veh" }
+    # [pscustomobject]@{ Stem="XL-n2634-k17";   Desc="~2.6k clients,   17 veh" }
+    # [pscustomobject]@{ Stem="XL-n5288-k1246"; Desc="~5.3k clients, 1246 veh" }
+    # [pscustomobject]@{ Stem="XL-n5174-k55";   Desc="~5.2k clients,   55 veh" }
+    [pscustomobject]@{ Stem="XL-n2494-k194";   Desc="~2.5k clients,  194 veh" }
+    [pscustomobject]@{ Stem="XL-n5406-k783";    Desc="~5.4k clients,  783 veh" }
+    [pscustomobject]@{ Stem="XL-n10001-k1570";    Desc="~10k clients,  1570 veh" }
+
 )
 
 # ── Preset list ───────────────────────────────────────────────────────────────
