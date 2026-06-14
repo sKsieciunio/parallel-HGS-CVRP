@@ -1,8 +1,3 @@
-% ===========================================================================
-%  Zrównoleglenie HGS-CVRP — prezentacja wyników
-%  Kompilacja:  pdflatex main.tex   (dwukrotnie, dla spisu treści)
-%  Wymaga: pakiet beamer, polski (babel), wykresy w ../results/plots/
-% ===========================================================================
 \documentclass[aspectratio=169,11pt]{beamer}
 
 \usetheme{Madrid}
@@ -16,8 +11,26 @@
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{array}
+\usepackage{makecell}
 \usepackage{xcolor}
 \usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds}
+
+% --- wspólne style diagramów --------------------------------------------------
+\tikzset{
+  box/.style   = {rectangle, rounded corners=2pt, draw=black!70, thick,
+                  fill=blue!8, align=center, minimum height=8mm, inner sep=4pt,
+                  font=\scriptsize},
+  hot/.style   = {box, fill=orange!18, draw=orange!70!black},
+  fb/.style    = {box, fill=green!10, draw=good!80!black},
+  isle/.style  = {circle, draw=black!70, thick, fill=blue!10, align=center,
+                  minimum size=10mm, font=\tiny},
+  cell/.style  = {rectangle, draw=black!45, fill=orange!12, minimum size=3.4mm,
+                  inner sep=0pt},
+  fl/.style    = {-{Stealth[length=2mm]}, thick},
+  flb/.style   = {{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick},
+  dashfl/.style  = {fl, densely dashed, draw=good!70!black},
+}
 
 % szuka wykresów w katalogu głównym, w figures/ oraz w lokalizacji oryginalnej
 \graphicspath{{./}{figures/}{../results/plots/}}
@@ -30,7 +43,7 @@
 
 \title[Zrównoleglenie HGS-CVRP]{Zrównoleglenie algorytmu HGS dla problemu CVRP}
 \subtitle{Analiza wpływu GPU, modelu master--slave i modelu wysp na jakość rozwiązań}
-\author{Hubert Blonowski}
+\author{Hubert Blonowski, Jan Zaborski}
 \date{14 czerwca 2026}
 
 \begin{document}
@@ -88,7 +101,7 @@
     \item Praktyczne znaczenie: logistyka, kurierzy, dystrybucja, zbiórka odpadów — drobna poprawa \% tras = realne oszczędności paliwa i czasu.
   \end{itemize}
   \vfill
-  \begin{block}{Stan sztuki}
+  \begin{block}{State of the art}
     \textbf{HGS} (Hybrid Genetic Search) Vidala i in. jest jednym z najlepszych znanych algorytmów dla CVRP — bardzo dobre rozwiązania w krótkim czasie.
   \end{block}
 \end{frame}
@@ -96,46 +109,39 @@
 % ===========================================================================
 \section{Algorytm HGS}
 % ===========================================================================
-\begin{frame}{HGS — Hybrid Genetic Search}
-  Hybryda algorytmu genetycznego i intensywnego przeszukiwania lokalnego:
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \textbf{Część genetyczna}
-      \begin{itemize}
-        \item populacja podzielona na rozwiązania \emph{dopuszczalne} i \emph{niedopuszczalne},
-        \item krzyżowanie OX $\rightarrow$ ,,gigantyczna trasa'',
-        \item \textbf{Split}: optymalny podział trasy na trasy pojazdów (programowanie dynamiczne),
-        \item zarządzanie różnorodnością (wkład bioróżnorodności, elity).
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \textbf{Przeszukiwanie lokalne (LS)}
-      \begin{itemize}
-        \item ruchy RI: relocate, swap, 2-opt, Or-opt,
-        \item \textbf{SWAP*}: wymiana dwóch klientów między trasami bez wstawiania w to samo miejsce,
-        \item adaptacyjne zarządzanie karami za niedopuszczalność.
-      \end{itemize}
-    \end{column}
-  \end{columns}
+\begin{frame}{Główna idea: ,,hodujemy'' rozwiązania jak w ewolucji}
+  Nie da się sprawdzić wszystkich możliwych zestawów tras — jest ich astronomicznie wiele. Zamiast tego \textbf{naśladujemy dobór naturalny}:
   \vfill
-  \footnotesize Uwaga z dokumentacji: kod jest \textbf{kalibrowany dla instancji do ~1000 klientów}; dla $>5000$ wymagałby dekompozycji.
-\end{frame}
-
-\begin{frame}{Anatomia pętli HGS — co tu jest ,,sekwencyjne''?}
   \begin{enumerate}
-    \item Wybierz dwóch rodziców $\rightarrow$ \textbf{krzyżowanie}
-    \item \textbf{Split} (dekodowanie do tras)
-    \item \textbf{Local Search} (RI + SWAP*) — najdroższy krok
-    \item Wstaw potomka do populacji, zaktualizuj \textbf{różnorodność}
-    \item Co 100 iteracji: \textbf{adaptacja kar} (cel: 20\% dopuszczalnych)
-    \item Zarządzanie populacją: selekcja przeżycia, elity
+    \item Trzymamy \textbf{zbiór gotowych rozwiązań} (każde to kompletny plan tras).
+    \item Bierzemy dwa dobre rozwiązania i \textbf{,,krzyżujemy'' je} — powstaje nowe, dziedziczące fragmenty po obojgu ,,rodzicach''.
+    \item Nowe rozwiązanie \textbf{podszlifowujemy} drobnymi poprawkami (przeszukiwanie lokalne).
+    \item Najlepsze przeżywają, słabe odrzucamy. \textbf{Powtarzamy tysiące razy.}
   \end{enumerate}
-  \vfill
-  \begin{alert}{Kluczowa obserwacja}
-    Każda iteracja \textbf{zależy od poprzedniej}: kary, różnorodność i selekcja tworzą \textbf{ciasną adaptacyjną pętlę sprzężenia zwrotnego}. To ona daje siłę HGS — i to ona stoi na drodze zrównolegleniu.
-  \end{alert}
 \end{frame}
 
+\begin{frame}{Jak wygląda jedna ,,tura'' algorytmu}
+  \centering
+  \begin{tikzpicture}[node distance=6mm and 9mm]
+    \node[box] (pop)  {Populacja\\\scriptsize(zbiór rozwiązań)};
+    \node[box, right=of pop] (cx) {Krzyżowanie\\\scriptsize(2 rodziców\\$\rightarrow$ potomek)};
+    \node[box, right=of cx]  (sp) {Split\\\scriptsize(podział\\na trasy)};
+    \node[hot, right=of sp]  (ls) {Przeszukiwanie\\lokalne\\\scriptsize(,,szlif'')};
+    \node[box, right=of ls]  (ins){Dodaj do populacji,\\odrzuć najsłabsze};
+    % główny przepływ
+    \draw[fl] (pop)--(cx);
+    \draw[fl] (cx)--(sp);
+    \draw[fl] (sp)--(ls);
+    \draw[fl] (ls)--(ins);
+    % pętla powrotna
+    \draw[fl] (ins.north) .. controls +(0,1.1) and +(0,1.1) .. node[above,font=\scriptsize]{kolejna tura} (pop.north);
+    % blok sprzężenia
+    \node[fb, below=14mm of sp] (fbk) {Bieżące ,,reguły gry'':\\\textbf{kary} za przeładowanie + dbanie o \textbf{różnorodność}};
+    \draw[dashfl] (fbk) -- (ls);
+    \draw[dashfl] (fbk.west) -| (pop.south);
+    \draw[dashfl] (fbk.east) -| (ins.south);
+  \end{tikzpicture}
+\end{frame}
 % ===========================================================================
 \section{Wprowadzone modyfikacje}
 % ===========================================================================
@@ -160,59 +166,111 @@
     \end{column}
   \end{columns}
   \vfill
-  Dodatkowo: warstwa \textbf{telemetrii} i \textbf{monitor sprzętu} (CPU/GPU util) do rzetelnej oceny.
-\end{frame}
-
-\begin{frame}{Szczegóły implementacyjne}
-  \begin{description}
-    \item[GPU SWAP*] Kernel CUDA + dedykowany układ danych (\texttt{GpuDataLayout}), kopiowanie tras host$\leftrightarrow$device przy każdym wywołaniu LS, NVML do pomiaru zużycia GPU.
-    \item[OpenMP] Alternatywna ścieżka SWAP* na CPU (\texttt{OpenMPLocalSearch}) oraz równoległy \texttt{ParallelOffspringMaker} (master rozdziela zadania, slaves liczą LS).
-    \item[Model wysp] Modularny: wymienne \emph{topologie}, \emph{polityki migracji}, \emph{selektory migrantów}, \emph{komunikatory} (synchroniczny MPI). Każda wyspa to pełny HGS na podpopulacji.
-  \end{description}
+  Dodatkowo: warstwa \textbf{telemetrii} i \textbf{monitor sprzętu} (zużycie CPU/GPU) do rzetelnej oceny.
   \vfill
-  \footnotesize 6 wariantów testowych: \texttt{baseline}, \texttt{gpu}, \texttt{offspring16t8}, \texttt{gpu\_offspring16t8}, \texttt{island8\_star}, \texttt{island8\_star\_gpu\_off16t8}.
+  {\footnotesize Z tych mechanizmów złożyliśmy \textbf{6 wariantów testowych}: \texttt{baseline}, \texttt{gpu}, \texttt{offspring16t8}, \texttt{gpu\_offspring16t8}, \texttt{island8\_star}, \texttt{island8\_star\_gpu\_off16t8}.}
 \end{frame}
 
-% ===========================================================================
-\section{Dlaczego HGS jest trudny do zrównoleglenia}
-% ===========================================================================
-\begin{frame}{Cztery fundamentalne bariery}
-  \begin{enumerate}
-    \item \textbf{Prawo Amdahla.} SWAP* to tylko fragment kosztu. Split, krzyżowanie, ruchy RI i księgowanie różnorodności pozostają sekwencyjne — przyspieszenie jednego kroku daje mały zysk całkowity.
-    \vspace{0.3em}
-    \item \textbf{Adaptacyjna pętla sprzężenia zwrotnego.} Gruboziarnista równoległość (bulk offspring, wyspy) \emph{rozrywa} sprzężenie kara$\leftrightarrow$różnorodność$\leftrightarrow$selekcja. Więcej obliczeń $\ne$ lepsze przeszukiwanie.
-    \vspace{0.3em}
-    \item \textbf{SWAP* źle pasuje do GPU.} Nieregularny, rozgałęziony, ograniczony pamięcią; \textbf{trafialność ruchów $\approx$1,2\%} — 99\% ewaluowanych par jest bezużytecznych. Niska intensywność arytmetyczna + transfer host/device.
-    \vspace{0.3em}
-    \item \textbf{Fragmentacja populacji.} Podział 25 osobników na 8 wysp $\rightarrow$ każda wyspa to słabszy poszukiwacz; migracja nie nadrabia straty różnorodności.
-  \end{enumerate}
-\end{frame}
-
-\begin{frame}{Bariera dodatkowa: instancje poza zakresem}
-  \begin{itemize}
-    \item HGS jest \textbf{kalibrowany dla $\le 1000$ klientów} (dokumentacja autora).
-    \item Testowaliśmy instancje \textbf{XL: 2354–10001 klientów}.
-    \item Na tej skali \emph{żaden} wariant nie zbiega dobrze w 600 s — bez \textbf{dekompozycji} problem jest po prostu za duży dla tej pętli.
-  \end{itemize}
+% ---------------------------------------------------------------------------
+%  OŚ 1 — GPU SWAP*
+% ---------------------------------------------------------------------------
+\begin{frame}{Oś 1: SWAP* na GPU — pomysł}
+  \textbf{Co chcemy przyspieszyć?} W każdym ,,szlifie'' rozwiązania algorytm sprawdza \textbf{ogromną liczbę par klientów} z różnych tras: czy ich zamiana skróci trasy? To miliony niezależnych, identycznych obliczeń — \emph{idealne dla GPU}, które liczy tysiące takich par naraz.
   \vfill
-  \begin{alert}{Konsekwencja}
-    Zrównoleglenie zwiększa \emph{przepustowość}, ale nie naprawia algorytmu używanego poza jego projektowym zakresem. Przyspieszamy krok, który i tak nie prowadzi do dobrego rozwiązania.
-  \end{alert}
+  \centering
+  \begin{tikzpicture}[node distance=14mm]
+    \node[box, fill=blue!12] (host) {\textbf{Host (CPU)}\\\scriptsize pętla przeszukiwania,\\bieżące trasy};
+    \node[draw, thick, rounded corners, fill=orange!8, right=34mm of host,
+          minimum width=30mm, minimum height=22mm, label={[font=\scriptsize]above:\textbf{GPU} — siatka wątków}] (gpu) {};
+    \foreach \r in {0,1,2}\foreach \c in {0,1,2,3,4}
+      \node[cell] at ($(gpu.center)+(-1.0+\c*0.5,0.55-\r*0.55)$) {};
+    \draw[fl] (host.north east) ++(0,1mm) .. controls +(12mm,7mm) and +(-12mm,7mm) ..
+          node[above,font=\tiny]{kopiuj \textbf{pary} klientów} (gpu.north west);
+    \draw[fl, draw=good!70!black] (gpu.south west) .. controls +(-12mm,-7mm) and +(12mm,-7mm) ..
+          node[below,font=\tiny]{zwróć najlepszą zamianę} (host.south east);
+  \end{tikzpicture}
+  \vfill
+  {\footnotesize Każda komórka GPU ocenia jedną parę klientów; CPU dostaje gotowy ranking najlepszych zamian.}
 \end{frame}
+
+\begin{frame}{Oś 1: SWAP* na GPU — co zbudowaliśmy i kompromis}
+      \textbf{Co zbudowaliśmy (CUDA)}
+      \begin{itemize}
+        \item \textbf{kernel} liczący koszt zamiany dla wszystkich par równolegle,
+        \item \textbf{spłaszczony układ danych} tras (\texttt{GpuDataLayout}) dla szybkiego dostępu do pamięci GPU,
+        \item \textbf{strumienie CUDA} — nakładanie obliczeń i transferów,
+        \item pomiar zużycia GPU przez \textbf{NVML}.
+      \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+%  OŚ 2 — master-slave (OpenMP)
+% ---------------------------------------------------------------------------
+\begin{frame}{Oś 2: model master--slave — pomysł}
+  \textbf{Co chcemy przyspieszyć?} Najdroższy krok tury to ,,szlif'' potomka (przeszukiwanie lokalne). Skoro mamy wiele rdzeni CPU — \textbf{wyprodukujmy wielu potomków naraz}, każdy szlifowany na osobnym wątku.
+  \vfill
+  \centering
+  \begin{tikzpicture}[node distance=8mm and 12mm]
+    \node[box, fill=blue!12] (m) {\textbf{Master}\\\scriptsize wybiera rodziców,\\rozdziela zadania};
+    \node[hot, above right=2mm and 16mm of m] (w1) {Wątek 1\\\scriptsize krzyżowanie + szlif};
+    \node[hot, right=16mm of m]               (w2) {Wątek 2\\\scriptsize krzyżowanie + szlif};
+    \node[hot, below right=2mm and 16mm of m] (w3) {Wątek $k$\\\scriptsize krzyżowanie + szlif};
+    \foreach \w in {w1,w2,w3}{
+      \draw[fl] (m.east) -- (\w.west);
+      \draw[fl, draw=good!70!black] (\w.west) ++(0,-1mm) .. controls +(-6mm,-4mm) and +(6mm,-4mm) .. (m.east);
+    }
+  \end{tikzpicture}
+  \vfill
+  {\footnotesize W naszym wariancie: \textbf{16 potomków na rundę, 8 wątków}.}
+\end{frame}
+
+\begin{frame}{Oś 2: model master--slave — co zbudowaliśmy i kompromis}
+      \textbf{Co zbudowaliśmy (OpenMP)}
+      \begin{itemize}
+        \item wspólny interfejs \texttt{OffspringMaker} z dwiema implementacjami: \texttt{Standard} (sekwencyjna) i \texttt{Parallel},
+        \item \texttt{ParallelOffspringMaker} — master rozdziela zadania, wątki liczą krzyżowanie + Split + szlif,
+        \item sterowanie parametrami: liczba potomków i liczba wątków,
+        \item dodatkowo: równoległa ścieżka SWAP* na CPU (\texttt{OpenMPLocalSearch}).
+      \end{itemize}
+\end{frame}
+
+% ---------------------------------------------------------------------------
+%  OŚ 3 — model wysp (MPI)
+% ---------------------------------------------------------------------------
+\begin{frame}{Oś 3: model wysp — pomysł}
+  \textbf{Inne podejście do równoległości:} zamiast jednej populacji uruchamiamy \textbf{kilka niezależnych HGS} (,,wysp'') obok siebie. Co jakiś czas wyspy \textbf{wymieniają się najlepszymi rozwiązaniami} (migracja), by nawzajem się inspirować.
+  \vfill
+  \centering
+  \begin{tikzpicture}
+    \node[isle, fill=blue!18] (hub) at (0,0) {Hub};
+    \foreach \i/\a in {1/30,2/77,3/124,4/171,5/218,6/265,7/312}{
+      \node[isle] (i\i) at (\a:1.9) {HGS\\\i};
+      \draw[flb, draw=good!60!black] (hub) -- (i\i);
+    }
+  \end{tikzpicture}
+  \vfill
+  {\footnotesize Topologia \textbf{gwiazdy}: 8 wysp wymienia migrantów przez centralny węzeł. Każda wyspa = \textbf{pełny HGS} na własnej podpopulacji.}
+\end{frame}
+
+\begin{frame}{Oś 3: model wysp — co zbudowaliśmy i kompromis}
+      \textbf{Co zbudowaliśmy (MPI, modularnie)}
+      \begin{itemize}
+        \item wymienne \textbf{topologie} połączeń (m.in.\ gwiazda),
+        \item \textbf{polityki migracji} — kiedy i jak często wysyłać,
+        \item \textbf{selektory migrantów} — kogo wysłać (np.\ najlepszego),
+        \item obsługa imigrantów i \textbf{komunikator} (synchroniczny, MPI).
+      \end{itemize}
+\end{frame}
+
 
 % ===========================================================================
 \section{Wyniki eksperymentów}
 % ===========================================================================
 \begin{frame}{Konfiguracja eksperymentów}
   \begin{itemize}
-    \item \textbf{7 instancji XL} (2354–10001 klientów), \textbf{6 wariantów}, \textbf{limit czasu 600 s}, seed 1.
-    \item Status ,,FAIL'' w logach = osiągnięcie limitu czasu (kryterium stopu), \textbf{nie błąd} — rozwiązania powstały.
-    \item Mierzone: jakość (koszt), liczba iteracji GA, ewaluowane pary SWAP*, ruchy RI, wykorzystanie CPU/GPU, migracje, rundy offspring.
+    \item \textbf{5 instancji XL} (2354–10001 klientów), \textbf{6 wariantów}, \textbf{limit czasu 600 s}, seed 1.
+    \item Mierzone: jakość (koszt), liczba tur algorytmu, ewaluowane pary SWAP*, ruchy lokalne, wykorzystanie CPU/GPU, migracje, rundy potomstwa.
   \end{itemize}
-  \vfill
-  \begin{block}{Jedno zdanie podsumowania}
-    Mimo wielokrotnie większej liczby ewaluacji, \textbf{poprawa jakości jest znikoma}, a najbardziej złożona konfiguracja bywa \bad{gorsza} od baseline.
-  \end{block}
 \end{frame}
 
 \begin{frame}{Poprawa jakości względem baseline}
@@ -223,14 +281,10 @@
 
 \begin{frame}{Mapa cieplna jakości — gdzie jest zielono, a gdzie czerwono}
   \centering
-  \includegraphics[height=0.74\textheight]{07_quality_heatmap.png}
-  \par\footnotesize Najbardziej złożony wariant (wyspy+GPU+offspring) jest często \bad{czerwony} — gorszy od baseline.
+  \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{07_quality_heatmap.png}
+  \par\medskip\begin{minipage}{0.92\textwidth}\footnotesize Najbardziej złożony wariant (wyspy+GPU+offspring) jest często \bad{czerwony} — gorszy od baseline.\end{minipage}
 \end{frame}
 
-\begin{frame}{Najlepsza jakość per wariant (100\% = baseline)}
-  \centering
-  \includegraphics[height=0.80\textheight]{10_absolute_best_quality.png}
-\end{frame}
 
 \begin{frame}{Liczby — najlepszy wariant na każdej instancji}
   \centering
@@ -248,55 +302,46 @@
     XL-n10001-k1570& 2\,363\,410 & 2\,362\,345 & \good{+0,05\%} & GPU \\
     \bottomrule
   \end{tabular}
-  \vfill
-  \footnotesize Mediana zysku $<0{,}6\%$. Dla porównania wariant \texttt{island+GPU+offspring} osiąga np. \bad{$-5\%$} na n2634 i \bad{$-3\%$} na n5174, a na n10001 nie kończy ani jednej generacji GA.
 \end{frame}
 
-\begin{frame}{Krzywe zbieżności}
-  \centering
-  \includegraphics[height=0.80\textheight]{02_convergence_curves.png}
-\end{frame}
 
 \begin{frame}{Wykorzystanie sprzętu — sedno problemu}
   \centering
-  \includegraphics[height=0.74\textheight]{03_hw_utilization_heatmap.png}
-  \par\footnotesize Baseline: \textbf{8\% CPU, ~1\% rdzeni GPU}. Offspring podbija CPU do ~60\%, GPU pozostaje w dużej mierze bezczynne.
+  \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{03_hw_utilization_heatmap.png}
 \end{frame}
 
-\begin{frame}{GPU liczy więcej, a jakość nie rośnie}
+\begin{frame}{Dlaczego GPU ożywa przy małej liczbie pojazdów?}
   \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{04_swap_pairs_evaluated.png}
+    \begin{column}{0.56\textwidth}
+      Karta jest wydajna tylko wtedy, gdy ma \textbf{dużo równoległej pracy na jedno wywołanie}.
+      \vspace{0.4em}
+      \begin{itemize}
+        \item SWAP* porównuje \textbf{pary klientów} wewnątrz i między trasami — liczba par rośnie z \textbf{kwadratem długości trasy}.
+        \item \textbf{Mało pojazdów} $\Rightarrow$ trasy bardzo \textbf{długie} (nawet $\sim$155 klientów/trasę) $\Rightarrow$ ogromne, gęste bloki pracy $\Rightarrow$ \good{rdzenie GPU zajęte}.
+        \item \textbf{Dużo pojazdów} $\Rightarrow$ trasy \textbf{malutkie} (3--4 klientów) $\Rightarrow$ pracy jak na lekarstwo $\Rightarrow$ dominuje narzut uruchomienia kernela i transferu $\Rightarrow$ \bad{GPU głoduje}.
+      \end{itemize}
     \end{column}
-    \begin{column}{0.5\textwidth}
+    \begin{column}{0.44\textwidth}
       \centering
-      \includegraphics[width=\textwidth]{09_swapstar_gpu_speedup.png}
+      \scriptsize
+      \begin{tabular}{l r r}
+        \toprule
+        Instancja & \makecell{klienci\\/trasę} & \makecell{rdzenie\\GPU} \\
+        \midrule
+        XL-n2634-\textbf{k17}   & 155 & \good{91\%} \\
+        XL-n5174-\textbf{k55}   & 94  & \good{80\%} \\
+        XL-n2494-k194           & 13  & 9\% \\
+        XL-n5406-k783           & 7   & 15\% \\
+        XL-n5288-k1246          & 4   & 9\% \\
+        XL-n2354-k631           & 4   & 9\% \\
+        \bottomrule
+      \end{tabular}
+      \par\vspace{0.4em}
+      {\tiny ,,k'' w nazwie = liczba pojazdów. Średnia długość trasy $=n/k$.}
     \end{column}
   \end{columns}
-  \vfill
-  \footnotesize GPU ewaluuje \textbf{1,4–4$\times$ więcej par} SWAP*, ale przy trafialności ~1,2\% i sekwencyjnej reszcie pętli nie przekłada się to na jakość.
 \end{frame}
 
-\begin{frame}{Mniej generacji GA mimo większego CPU}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{08_iterations_completed.png}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \centering
-      \includegraphics[width=\textwidth]{12_offspring_rounds.png}
-    \end{column}
-  \end{columns}
-  \vfill
-  \footnotesize Wariant offspring wykonuje \textbf{kilkukrotnie mniej iteracji} głównej pętli — masowa produkcja potomstwa rozluźnia adaptacyjne sprzężenie zwrotne HGS.
-\end{frame}
-
-\begin{frame}{Profile wielowymiarowe wariantów}
-  \centering
-  \includegraphics[height=0.78\textheight]{13_radar_profiles.png}
-\end{frame}
 
 % ===========================================================================
 \section{Spojrzenie biznesowe}
@@ -332,7 +377,7 @@
   \small
   \begin{tabular}{l c c c}
     \toprule
-    Wariant & Pobór mocy (orient.) & Energia (600 s) & Zysk jakości \\
+    Wariant & Pobór mocy & Energia (600 s) & Zysk jakości \\
     \midrule
     Baseline (1 rdzeń)        & ~50 W            & ~8 Wh   & --- \\
     Offspring (8 rdzeni)      & ~130 W           & ~22 Wh  & \good{$\sim$+1\%} \\
@@ -341,50 +386,38 @@
     \bottomrule
   \end{tabular}
   \vfill
-  \footnotesize $\sim$6$\times$ więcej energii na ten sam wynik. \textbf{Wydajność na wat dramatycznie spada}, mimo niewykorzystania GPU (~1--11\% rdzeni). To koszt środowiskowy i operacyjny bez pokrycia w jakości.
+  \footnotesize Pobór mocy mierzony za pomocą urządzenia monitorującego pobór mocy z gniazdka. Wartości uśrednione dla różnych instancji. 
 \end{frame}
 
-\begin{frame}{Kiedy taka inwestycja by się opłaciła?}
-  \begin{itemize}
-    \item Gdyby zysk jakości był \textbf{rzędu kilku--kilkunastu procent} i przekładał się na realne oszczędności (paliwo, liczba pojazdów) przewyższające koszt energii i sprzętu.
-    \item Gdyby instancje mieściły się w \textbf{zakresie projektowym} algorytmu (do ~1000 klientów).
-    \item Gdyby równoległość pasowała do \textbf{struktury danych} algorytmu (patrz: wnioski).
-  \end{itemize}
-  \vfill
-  W naszym scenariuszu \textbf{żaden} z tych warunków nie jest spełniony.
-\end{frame}
 
 % ===========================================================================
 \section{Wnioski}
 % ===========================================================================
 \begin{frame}{Wnioski}
-  \begin{enumerate}
-    \item Zrównoleglenie HGS \textbf{nie poprawiło jakości} w sposób istotny — wąskim gardłem nie jest przepustowość, lecz \textbf{struktura zależności danych} algorytmu i \textbf{skala instancji poza zakresem}.
-    \item GPU jest złym dopasowaniem do SWAP* (nieregularność, niska trafialność, transfery).
-    \item Gruboziarnista równoległość (offspring, wyspy) \textbf{rozrywa adaptacyjną pętlę} HGS — więcej rdzeni, mniej skutecznych generacji.
-    \item Najbardziej złożona konfiguracja jest \textbf{najgorsza} — złożoność nie zwróciła się ani w jakości, ani w energii.
-  \end{enumerate}
+  Niestety nasze podejście do problemu było wadliwe od samego początku — próbowaliśmy \textbf{dopasować algorytm do równoległości}, 
+  zamiast \textbf{dopasować równoległość do algorytmu}. HGS jest zbudowany wokół sekwencyjnej, adaptacyjnej pętli, która nie daje 
+  się łatwo rozbić na niezależne kawałki. Próby zrównoleglenia tej pętli \textbf{nie poprawiły jakości} w sposób istotny, a czasem ją
+  pogorszyły — bo wąskim gardłem nie jest przepustowość, lecz algorytm i struktura zależności danych.\\
+  \vfill
+  Lepszym podejściem byłoby zbadanie algorytmów polegających na iteracyjnym ulepszaniu rozwiązania, które są \textbf{zaprojektowane z myślą o równoległości} 
 \end{frame}
 
-\begin{frame}{Co byłoby skuteczniejsze? — kierunki alternatywne}
+\begin{frame}{Czego się nauczyliśmy?}
   \begin{itemize}
-    \item \textbf{Dekompozycja problemu} (np. POPMUSIC, route-first/cluster-second) — jedyna droga do skutecznego HGS na instancjach XL; równoległość naturalnie po podproblemach.
-    \item \textbf{Równoległość ,,portfelowa''} — wiele \emph{niezależnych} przebiegów HGS z różnymi ziarnami, wybór najlepszego. Embarrassingly parallel, prawie liniowe skalowanie, zachowuje pętlę adaptacyjną nienaruszoną.
-    \item \textbf{GPU tylko po przeprojektowaniu sąsiedztwa} na natywnie wektorowe (batch wielu rozwiązań naraz), nie pojedyncze wywołania LS.
-    \item \textbf{Trzymanie się zakresu} — dla $\le 1000$ klientów jednowątkowy HGS jest już bardzo dobry; równoległość warto wkładać tam, gdzie realnie brakuje mocy.
+    \item Lepiej poznaliśmy mechanizmy działania algorytmów genetycznych i metaheurystycznych.
+    \item Nauczyliśmy się technologii równoległych, szczególnie openMP oraz MPI, i ich zastosowania w praktyce.
+    \item Chociaż nie udało się zawżeć tego w końcowym raporcie, to mieliśmy możliwość skorzystania z dużego klastra obliczeniowego
+    i nauczenia się podstaw pracy z systemem kolejkowym, zarządzania zadaniami i monitorowania zasobów.
   \end{itemize}
-  \vfill
-  \begin{block}{Lekcja}
-    Strategię zrównoleglenia trzeba dopasować do \textbf{zależności danych} algorytmu — nie odwrotnie.
-  \end{block}
 \end{frame}
+
 
 \begin{frame}{}
   \vfill
   \centering
-  \Large Dziękuję za uwagę.\\[1em]
-  \normalsize Pytania?
+  \Large Dziękujemy za uwagę.\\[1em]
   \vfill
 \end{frame}
 
 \end{document}
+
