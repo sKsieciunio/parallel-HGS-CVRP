@@ -1,9 +1,5 @@
 \documentclass[aspectratio=169,11pt]{beamer}
 
-\usetheme{Madrid}
-\setbeamertemplate{navigation symbols}{}
-\setbeamertemplate{caption}[numbered]
-
 \usepackage[T1]{fontenc}
 \usepackage[utf8]{inputenc}
 \usepackage[polish]{babel}
@@ -13,43 +9,120 @@
 \usepackage{array}
 \usepackage{makecell}
 \usepackage{xcolor}
+\usepackage{amssymb}
+\usepackage{listings}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric,calc,fit,backgrounds}
-
-% --- wspólne style diagramów --------------------------------------------------
-\tikzset{
-  box/.style   = {rectangle, rounded corners=2pt, draw=black!70, thick,
-                  fill=blue!8, align=center, minimum height=8mm, inner sep=4pt,
-                  font=\scriptsize},
-  hot/.style   = {box, fill=orange!18, draw=orange!70!black},
-  fb/.style    = {box, fill=green!10, draw=good!80!black},
-  isle/.style  = {circle, draw=black!70, thick, fill=blue!10, align=center,
-                  minimum size=10mm, font=\tiny},
-  cell/.style  = {rectangle, draw=black!45, fill=orange!12, minimum size=3.4mm,
-                  inner sep=0pt},
-  fl/.style    = {-{Stealth[length=2mm]}, thick},
-  flb/.style   = {{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick},
-  dashfl/.style  = {fl, densely dashed, draw=good!70!black},
-}
 
 % szuka wykresów w katalogu głównym, w figures/ oraz w lokalizacji oryginalnej
 \graphicspath{{./}{figures/}{../results/plots/}}
 
-% --- skróty kolorystyczne -----------------------------------------------------
+% ============================================================================
+%  PALETA KOLORÓW  (zdefiniowana PRZED \tikzset, bo style diagramów jej używają)
+% ============================================================================
+\definecolor{accent}{RGB}{17,86,122}     % stalowy błękit (kolor wiodący)
+\definecolor{accent2}{RGB}{198,116,28}   % bursztyn (akcent ciepły)
 \definecolor{good}{RGB}{30,130,60}
 \definecolor{bad}{RGB}{190,40,40}
+\definecolor{panel}{RGB}{244,247,249}    % tło paneli/kodu
+\definecolor{ink}{RGB}{35,40,45}
+
+% ============================================================================
+%  CZYSTY, PŁASKI MOTYW
+% ============================================================================
+\usetheme{default}
+\usefonttheme{professionalfonts}
+\renewcommand{\familydefault}{\sfdefault}   % bezszeryfowo = nowocześniej
+\setbeamertemplate{navigation symbols}{}
+\setbeamertemplate{caption}[numbered]
+
+\setbeamercolor{normal text}{fg=ink}
+\setbeamercolor{structure}{fg=accent}
+\setbeamercolor{title}{fg=accent}
+\setbeamercolor{frametitle}{fg=accent}
+\setbeamercolor{block title}{fg=white,bg=accent}
+\setbeamercolor{block body}{fg=ink,bg=panel}
+\setbeamercolor{footline}{fg=white,bg=accent}
+\setbeamercolor{itemize item}{fg=accent}
+\setbeamercolor{itemize subitem}{fg=accent2}
+\setbeamercolor{enumerate item}{fg=accent}
+
+\setbeamerfont{frametitle}{series=\bfseries,size=\large}
+\setbeamerfont{title}{series=\bfseries}
+
+\setbeamertemplate{itemize item}{\small\color{accent}$\blacktriangleright$}
+\setbeamertemplate{itemize subitem}{\footnotesize\color{accent2}$\blacktriangleright$}
+\setbeamertemplate{blocks}[rounded][shadow=false]
+
+% płaski tytuł ramki z cienką linią
+\setbeamertemplate{frametitle}{%
+  \vspace*{0.8ex}%
+  {\usebeamerfont{frametitle}\usebeamercolor[fg]{frametitle}\insertframetitle\par}%
+  \vspace*{0.2ex}%
+  {\color{accent}\rule{\textwidth}{0.9pt}}%
+  \vspace*{0.4ex}%
+}
+
+% prosta, płaska stopka
+\setbeamertemplate{footline}{%
+  \begin{beamercolorbox}[wd=\paperwidth,ht=2.6ex,dp=1.1ex,leftskip=1.2em,rightskip=1.2em]{footline}%
+    \scriptsize\insertshortauthor\hfill\insertshorttitle\hfill\insertframenumber\,/\,\inserttotalframenumber%
+  \end{beamercolorbox}%
+}
+
+% ============================================================================
+%  STYLE TikZ
+% ============================================================================
+\tikzset{
+  box/.style    = {rectangle, rounded corners=2pt, draw=accent!70, thick,
+                   fill=accent!8, align=center, minimum height=8mm, inner sep=4pt,
+                   font=\scriptsize},
+  hot/.style    = {box, fill=accent2!16, draw=accent2!75!black},
+  fb/.style     = {box, fill=good!10, draw=good!70!black},
+  isle/.style   = {circle, draw=accent!70, thick, fill=accent!12, align=center,
+                   minimum size=10mm, font=\tiny},
+  cell/.style   = {rectangle, draw=accent!45, fill=accent2!18, minimum size=3.4mm,
+                   inner sep=0pt},
+  fl/.style     = {-{Stealth[length=2mm]}, thick, draw=accent!80},
+  flb/.style    = {{Stealth[length=2mm]}-{Stealth[length=2mm]}, thick, draw=good!65!black},
+  dashfl/.style = {fl, densely dashed, draw=good!70!black},
+}
+
+% ============================================================================
+%  STYL LISTINGÓW (krótkie wycinki kodu)
+% ============================================================================
+\lstset{
+  basicstyle=\ttfamily\scriptsize,
+  keywordstyle=\color{accent}\bfseries,
+  commentstyle=\color{good}\itshape,
+  stringstyle=\color{accent2},
+  numberstyle=\tiny\color{black!50},
+  showstringspaces=false,
+  columns=fullflexible,
+  keepspaces=true,
+  breaklines=true,
+  frame=single,
+  framesep=4pt,
+  rulecolor=\color{accent!30},
+  backgroundcolor=\color{panel},
+  language=C++,
+  morekeywords={__global__,cudaStream_t,cudaMemcpyAsync,uint32_t,override,nullptr},
+  aboveskip=4pt,belowskip=2pt,
+}
+
+% skróty kolorystyczne
 \newcommand{\good}[1]{\textcolor{good}{\textbf{#1}}}
 \newcommand{\bad}[1]{\textcolor{bad}{\textbf{#1}}}
 
 \title[Zrównoleglenie HGS-CVRP]{Zrównoleglenie algorytmu HGS dla problemu CVRP}
-\subtitle{Analiza wpływu GPU, modelu master--slave i modelu wysp na jakość rozwiązań}
-\author{Hubert Blonowski, Jan Zaborski}
+\subtitle{Wpływ akceleracji GPU, modelu master--slave i modelu wysp na jakość rozwiązań}
+\author[Blonowski, Zaborski]{Hubert Błonowski \and Jan Zaborski}
 \date{14 czerwca 2026}
 
 \begin{document}
 
 % ---------------------------------------------------------------------------
-\begin{frame}
+\begin{frame}[plain]
   \titlepage
 \end{frame}
 
@@ -61,34 +134,35 @@
 \section{Problem CVRP}
 % ===========================================================================
 \begin{frame}{Czym jest CVRP?}
-  \textbf{Capacitated Vehicle Routing Problem} — kanoniczny problem optymalizacji tras.
+  \textbf{Capacitated Vehicle Routing Problem} — kanoniczny problem optymalizacji tras dostaw.
   \vfill
   \begin{columns}[T]
     \begin{column}{0.58\textwidth}
-      Dane:
+      \textbf{Dane wejściowe:}
       \begin{itemize}
-        \item jeden magazyn (depot) i $n$ klientów,
-        \item każdy klient ma zapotrzebowanie $q_i$,
-        \item flota pojazdów o jednakowej pojemności $Q$,
+        \item jeden magazyn (\emph{depot}) oraz $n$ klientów,
+        \item zapotrzebowanie $q_i$ każdego klienta,
+        \item flota pojazdów o wspólnej pojemności $Q$,
         \item macierz odległości (kosztów) między punktami.
       \end{itemize}
       \vspace{0.4em}
-      Cel: znaleźć zbiór tras (każda zaczyna i kończy się w depot) o \textbf{minimalnej łącznej długości}, tak aby:
+      \textbf{Cel:} zbiór tras (każda od depotu do depotu) o \textbf{minimalnej łącznej długości}, taki że:
       \begin{itemize}
-        \item każdy klient był odwiedzony dokładnie raz,
+        \item każdy klient odwiedzony dokładnie raz,
         \item suma zapotrzebowań na trasie $\le Q$.
       \end{itemize}
     \end{column}
     \begin{column}{0.42\textwidth}
       \centering
-      \begin{tikzpicture}[scale=0.9]
-        \node[rectangle,draw,fill=blue!20] (d) at (0,0) {Depot};
+      \begin{tikzpicture}[scale=0.95]
+        \node[rectangle,draw=accent,thick,fill=accent!20] (d) at (0,0) {Depot};
         \foreach \x/\y in {-1.4/1.2, -1.6/-0.6, 1.3/1.3, 1.7/0.1, 1.2/-1.2, -0.3/-1.5}
-          \fill[black] (\x,\y) circle (2pt);
+          \fill[ink] (\x,\y) circle (2pt);
         \draw[good,thick] (d) -- (-1.4,1.2) -- (-1.6,-0.6) -- (d);
         \draw[bad,thick] (d) -- (1.3,1.3) -- (1.7,0.1) -- (d);
-        \draw[orange,thick] (d) -- (1.2,-1.2) -- (-0.3,-1.5) -- (d);
+        \draw[accent2,thick] (d) -- (1.2,-1.2) -- (-0.3,-1.5) -- (d);
       \end{tikzpicture}
+      \par\vspace{0.3em}{\scriptsize Trzy trasy obsługujące sześciu klientów.}
     \end{column}
   \end{columns}
 \end{frame}
@@ -96,229 +170,374 @@
 \begin{frame}{Dlaczego to trudny problem?}
   \begin{itemize}
     \item CVRP jest \textbf{NP-trudny} — uogólnia problem komiwojażera (TSP).
-    \item Przestrzeń rozwiązań rośnie wykładniczo wraz z liczbą klientów.
-    \item Dla instancji z tysiącami klientów dokładne metody są bezużyteczne — stosuje się \textbf{metaheurystyki}.
-    \item Praktyczne znaczenie: logistyka, kurierzy, dystrybucja, zbiórka odpadów — drobna poprawa \% tras = realne oszczędności paliwa i czasu.
+    \item Liczba możliwych podziałów i kolejności rośnie wykładniczo z liczbą klientów.
+    \item Dla instancji z tysiącami klientów metody dokładne są bezużyteczne — stosuje się \textbf{metaheurystyki}.
+    \item Znaczenie praktyczne: logistyka, kurierzy, dystrybucja, odbiór odpadów — poprawa o ułamek procenta na dużej flocie to realne oszczędności paliwa i czasu.
   \end{itemize}
   \vfill
-  \begin{block}{State of the art}
-    \textbf{HGS} (Hybrid Genetic Search) Vidala i in. jest jednym z najlepszych znanych algorytmów dla CVRP — bardzo dobre rozwiązania w krótkim czasie.
+  \begin{block}{Punkt odniesienia}
+    \textbf{HGS} (Hybrid Genetic Search, Vidal i in.) to jeden z najlepszych znanych algorytmów dla CVRP — bardzo dobre rozwiązania w krótkim czasie. Naszą pracę budujemy jako jego rozszerzenie (fork).
   \end{block}
 \end{frame}
 
 % ===========================================================================
 \section{Algorytm HGS}
 % ===========================================================================
-\begin{frame}{Główna idea: ,,hodujemy'' rozwiązania jak w ewolucji}
-  Nie da się sprawdzić wszystkich możliwych zestawów tras — jest ich astronomicznie wiele. Zamiast tego \textbf{naśladujemy dobór naturalny}:
+\begin{frame}{HGS w skrócie: ewolucja + intensywna lokalna poprawa}
+  HGS łączy \textbf{algorytm genetyczny} (eksploracja przestrzeni) z \textbf{przeszukiwaniem lokalnym} (eksploatacja okolicy rozwiązania). Pięć współpracujących komponentów:
   \vfill
-  \begin{enumerate}
-    \item Trzymamy \textbf{zbiór gotowych rozwiązań} (każde to kompletny plan tras).
-    \item Bierzemy dwa dobre rozwiązania i \textbf{,,krzyżujemy'' je} — powstaje nowe, dziedziczące fragmenty po obojgu ,,rodzicach''.
-    \item Nowe rozwiązanie \textbf{podszlifowujemy} drobnymi poprawkami (przeszukiwanie lokalne).
-    \item Najlepsze przeżywają, słabe odrzucamy. \textbf{Powtarzamy tysiące razy.}
-  \end{enumerate}
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
+      \begin{enumerate}
+        \item \textbf{Reprezentacja + Split} — rozwiązanie jako permutacja klientów, dzielona na trasy.
+        \item \textbf{Krzyżowanie (OX)} — z dwóch rodziców powstaje potomek.
+        \item \textbf{Przeszukiwanie lokalne} — RI (relokacje, zamiany, 2-opt) oraz SWAP*.
+      \end{enumerate}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{enumerate}
+        \setcounter{enumi}{3}
+        \item \textbf{Populacja z różnorodnością} — podpopulacje dopuszczalna/niedopuszczalna, selekcja wg \emph{biased fitness}.
+        \item \textbf{Adaptacyjne kary} — sterują dopuszczalnością przez całą optymalizację.
+      \end{enumerate}
+    \end{column}
+  \end{columns}
+  \vfill
+  {\footnotesize Kluczowa cecha: pętla jest \textbf{sekwencyjna i adaptacyjna} — każda iteracja zależy od stanu poprzednich. To później okaże się istotne dla zrównoleglenia.}
 \end{frame}
 
-\begin{frame}{Jak wygląda jedna ,,tura'' algorytmu}
+\begin{frame}{Reprezentacja rozwiązania i algorytm Split}
+  \begin{columns}[T]
+    \begin{column}{0.56\textwidth}
+      \textbf{Gigantyczna trasa (\emph{giant tour}).} Rozwiązanie to \textbf{permutacja klientów} $1\ldots n$ — sama kolejność odwiedzin, \emph{bez} przypisania do pojazdów. Krzyżowanie działa właśnie na tej permutacji.
+      \vspace{0.5em}
+
+      \textbf{Split.} Optymalnie tnie permutację na trasy metodą \textbf{programowania dynamicznego} (Bellman po grafie acyklicznym):
+      \begin{itemize}
+        \item wariant \textbf{$O(n)$} bez ograniczeń czasowych (Vidal 2016),
+        \item wariant z limitem floty (\texttt{splitLF}) i z ograniczeniem czasu trasy.
+      \end{itemize}
+      Wynik: konkretne trasy + koszt z naruszeniami.
+    \end{column}
+    \begin{column}{0.44\textwidth}
+      \centering
+      \begin{tikzpicture}[node distance=3mm]
+        \node[box,fill=accent!12] (gt) {giant tour: \;3\,1\,5\,2\,4\,6};
+        \node[fb, below=7mm of gt] (sp) {Split (DP)};
+        \node[box, below left=3mm and 2mm of sp] (r1) {trasa A: 3\,1};
+        \node[box, below=10mm of sp] (r2) {trasa B: 5\,2};
+        \node[box, below right=3mm and 2mm of sp] (r3) {trasa C: 4\,6};
+        \draw[fl] (gt)--(sp);
+        \draw[fl] (sp)--(r1); \draw[fl] (sp)--(r2); \draw[fl] (sp)--(r3);
+      \end{tikzpicture}
+      \par\vspace{0.2em}{\scriptsize Split rozdziela koszt krzyżowania od struktury tras.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Przeszukiwanie lokalne — sąsiedztwo RI}
+  Po Splicie potomek jest intensywnie ulepszany. Rozwiązanie trzymane jest jako \textbf{lista dwukierunkowa} węzłów (\texttt{Node}) i tras (\texttt{Route}) — szybkie wstawianie i usuwanie klientów.
+  \vfill
+  \begin{columns}[T]
+    \begin{column}{0.54\textwidth}
+      \textbf{Ruchy RI} (klasyczny zestaw Prinsa, \texttt{move1}--\texttt{move9}):
+      \begin{itemize}
+        \item relokacja 1 lub 2 klientów,
+        \item zamiana klientów (swap),
+        \item 2-opt (wewnątrz trasy) i 2-opt* (między trasami).
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.46\textwidth}
+      \textbf{Dwa mechanizmy przyspieszające:}
+      \begin{itemize}
+        \item \textbf{Sąsiedztwo granularne} — ruch rozważany tylko między klientem a jego \texttt{nbGranular} najbliższymi (\texttt{correlatedVertices}).
+        \item \textbf{,,Don't-look''} — znaczniki \texttt{whenLastTested} + licznik \texttt{nbMoves} pomijają ponowną ocenę niezmienionych węzłów.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vfill
+  {\footnotesize Local search jest \textbf{najdroższym krokiem} całej tury — i głównym celem naszego zrównoleglania.}
+\end{frame}
+
+\begin{frame}{Sąsiedztwo SWAP* — to akcelerujemy na GPU}
+  \begin{columns}[T]
+    \begin{column}{0.6\textwidth}
+      Dla \textbf{pary tras} $(U,V)$ SWAP* rozważa wymianę klienta z $U$ na klienta z $V$ — ale \textbf{każdy z nich wstawiany jest w najlepsze miejsce} drugiej trasy (nie w pozycję wymienianego).
+      \vspace{0.5em}
+      \begin{itemize}
+        \item \texttt{ThreeBestInsert} — trzy najtańsze pozycje wstawienia każdego klienta (z pominięciem sąsiedztwa usuwanego).
+        \item \textbf{Przycinanie}: rozważane tylko pary tras o \textbf{nakrywających się sektorach kątowych} (\texttt{CircleSector}).
+        \item Koszt ruchu $=$ usunięcia $+$ najtańsze wstawienia $+$ zmiana kar.
+      \end{itemize}
+    \end{column}
+    \begin{column}{0.4\textwidth}
+      \centering
+      \begin{tikzpicture}[scale=0.95]
+        \node[font=\scriptsize] at (-1.1,1.5) {trasa $U$};
+        \node[font=\scriptsize] at ( 1.1,1.5) {trasa $V$};
+        \foreach \y in {0.8,0.2,-0.4,-1.0} \fill[good] (-1.1,\y) circle (2.2pt);
+        \foreach \y in {0.8,0.2,-0.4,-1.0} \fill[accent2] (1.1,\y) circle (2.2pt);
+        \draw[fl,draw=bad] (-1.1,0.2) .. controls (0,0.7) .. (1.1,-0.4);
+        \draw[fl,draw=bad] (1.1,0.2) .. controls (0,-0.3) .. (-1.1,-1.0);
+        \node[font=\tiny,bad] at (0,1.05) {najlepsze wstawienie};
+      \end{tikzpicture}
+      \par\vspace{0.2em}{\scriptsize Liczba ocen rośnie z \textbf{kwadratem} długości trasy — stąd masa pracy dla GPU.}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Populacja, różnorodność i selekcja}
+  \begin{columns}[T]
+    \begin{column}{0.55\textwidth}
+      \textbf{Dwie podpopulacje}, każda sortowana wg kosztu z karami:
+      \begin{itemize}
+        \item \textbf{dopuszczalna} (spełnia pojemność/czas),
+        \item \textbf{niedopuszczalna} (z naruszeniami).
+      \end{itemize}
+      \vspace{0.4em}
+      \textbf{Biased fitness} łączy dwa rankingi:
+      \[
+        f_{\text{bias}} = \underbrace{r_{\text{koszt}}}_{\text{jakość}}
+          + \Bigl(1-\tfrac{n_{\text{elite}}}{|P|}\Bigr)\underbrace{r_{\text{div}}}_{\text{różnorodność}}
+      \]
+      Różnorodność = \emph{broken-pairs distance} do \texttt{nbClose} najbliższych rozwiązań.
+    \end{column}
+    \begin{column}{0.45\textwidth}
+      \textbf{Selekcja ocalałych.} Gdy podpopulacja przekroczy \texttt{mu+lambda}, przycinana jest \textbf{do \texttt{mu}}: usuwany najgorszy wg biased fitness, z \textbf{preferencją usuwania klonów}.
+      \vspace{0.5em}
+      \begin{block}{Po co różnorodność?}
+        \footnotesize Sama jakość prowadzi do przedwczesnej zbieżności (klony). Premiowanie odmiennych rozwiązań utrzymuje eksplorację.
+      \end{block}
+    \end{column}
+  \end{columns}
+\end{frame}
+
+\begin{frame}{Adaptacyjne kary, krzyżowanie i restart}
+  \begin{itemize}
+    \item \textbf{Kary} \texttt{penaltyCapacity} i \texttt{penaltyDuration} są adaptowane co \texttt{nbIterPenaltyManagement} iteracji w stronę docelowego odsetka rozwiązań dopuszczalnych (\texttt{targetFeasible} $\approx 0{,}2$): za mało dopuszczalnych $\Rightarrow$ kary rosną, za dużo $\Rightarrow$ maleją. Pozwala to kontrolowanie naruszeń \emph{przejściowo}.
+    \item \textbf{Krzyżowanie OX} (ordered crossover) na gigantycznych trasach: kopiuje wycinek pierwszego rodzica, resztę uzupełnia w kolejności drugiego.
+    \item \textbf{Zakończenie / restart}: brak poprawy przez \texttt{nbIter} iteracji kończy bieg; przy limicie czasu populacja jest restartowana i optymalizacja trwa do wyczerpania czasu.
+  \end{itemize}
+\end{frame}
+
+\begin{frame}{Pełna pętla HGS}
   \centering
-  \begin{tikzpicture}[node distance=6mm and 9mm]
-    \node[box] (pop)  {Populacja\\\scriptsize(zbiór rozwiązań)};
-    \node[box, right=of pop] (cx) {Krzyżowanie\\\scriptsize(2 rodziców\\$\rightarrow$ potomek)};
-    \node[box, right=of cx]  (sp) {Split\\\scriptsize(podział\\na trasy)};
-    \node[hot, right=of sp]  (ls) {Przeszukiwanie\\lokalne\\\scriptsize(,,szlif'')};
-    \node[box, right=of ls]  (ins){Dodaj do populacji,\\odrzuć najsłabsze};
-    % główny przepływ
+  \begin{tikzpicture}[node distance=6mm and 8mm]
+    \node[box] (pop)  {Populacja};
+    \node[box, right=of pop] (cx) {Krzyżowanie\\OX};
+    \node[box, right=of cx]  (sp) {Split};
+    \node[hot, right=of sp]  (ls) {Local search\\\scriptsize RI + SWAP*};
+    \node[box, right=of ls]  (ins){Wstaw + selekcja\\\scriptsize(przytnij do \texttt{mu})};
     \draw[fl] (pop)--(cx);
     \draw[fl] (cx)--(sp);
     \draw[fl] (sp)--(ls);
     \draw[fl] (ls)--(ins);
-    % pętla powrotna
-    \draw[fl] (ins.north) .. controls +(0,1.1) and +(0,1.1) .. node[above,font=\scriptsize]{kolejna tura} (pop.north);
-    % blok sprzężenia
-    \node[fb, below=14mm of sp] (fbk) {Bieżące ,,reguły gry'':\\\textbf{kary} za przeładowanie + dbanie o \textbf{różnorodność}};
+    \draw[fl] (ins.north) .. controls +(0,1.0) and +(0,1.0) .. node[above,font=\scriptsize]{kolejna tura} (pop.north);
+    \node[fb, below=12mm of sp] (fbk) {Stan globalny:\\\textbf{adaptacyjne kary} + \textbf{miara różnorodności}};
     \draw[dashfl] (fbk) -- (ls);
     \draw[dashfl] (fbk.west) -| (pop.south);
     \draw[dashfl] (fbk.east) -| (ins.south);
   \end{tikzpicture}
+  \par\vspace{0.6em}
+  {\footnotesize Przerywane strzałki: globalny, \textbf{współdzielony stan} adaptowany w trakcie biegu — źródło zależności danych utrudniających zrównoleglenie.}
 \end{frame}
+
 % ===========================================================================
 \section{Wprowadzone modyfikacje}
 % ===========================================================================
 \begin{frame}{Trzy osie zrównoleglenia}
-  Dodaliśmy do HGS trzy niezależne (i łączalne) mechanizmy:
+  Do HGS dodaliśmy trzy niezależne (i łączalne) mechanizmy:
   \vfill
   \begin{columns}[T]
     \begin{column}{0.33\textwidth}
       \begin{block}{1. GPU SWAP* (CUDA)}
-        Ewaluacja par klientów dla SWAP* przeniesiona na GPU. Tysiące par liczonych równolegle, strumienie CUDA.
+        \footnotesize Ewaluacja par tras dla SWAP* przeniesiona na GPU; jeden blok na parę, strumienie CUDA.
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
       \begin{block}{2. Master--slave (OpenMP)}
-        Równoległe wytwarzanie potomstwa: 16 potomków na rundę, 8 wątków. ,,Many offspring''.
+        \footnotesize Równoległe wytwarzanie potomstwa: 16 potomków na rundę na 8 wątkach.
       \end{block}
     \end{column}
     \begin{column}{0.33\textwidth}
       \begin{block}{3. Model wysp (MPI)}
-        8 niezależnych populacji (wysp), topologia gwiazdy, polityki migracji i selekcji migrantów.
+        \footnotesize 8 niezależnych populacji, topologia gwiazdy, polityki migracji i selekcji migrantów.
       \end{block}
     \end{column}
   \end{columns}
   \vfill
-  Dodatkowo: warstwa \textbf{telemetrii} i \textbf{monitor sprzętu} (zużycie CPU/GPU) do rzetelnej oceny.
+  Dodatkowo: warstwa \textbf{telemetrii} i \textbf{monitor sprzętu} (CPU/GPU, NVML) do rzetelnej oceny.
   \vfill
-  {\footnotesize Z tych mechanizmów złożyliśmy \textbf{6 wariantów testowych}: \texttt{baseline}, \texttt{gpu}, \texttt{offspring16t8}, \texttt{gpu\_offspring16t8}, \texttt{island8\_star}, \texttt{island8\_star\_gpu\_off16t8}.}
+  {\footnotesize Sensownie przetestowaliśmy \textbf{6 wariantów}: \texttt{baseline}, \texttt{gpu}, \texttt{offspring16t8}, \texttt{gpu\_offspring16t8}, \texttt{island8\_star}, \texttt{island8\_star\_gpu\_off16t8}.}
 \end{frame}
 
 % ---------------------------------------------------------------------------
 %  OŚ 1 — GPU SWAP*
 % ---------------------------------------------------------------------------
 \begin{frame}{Oś 1: SWAP* na GPU — pomysł}
-  \textbf{Co chcemy przyspieszyć?} W każdym ,,szlifie'' rozwiązania algorytm sprawdza \textbf{ogromną liczbę par klientów} z różnych tras: czy ich zamiana skróci trasy? To miliony niezależnych, identycznych obliczeń — \emph{idealne dla GPU}, które liczy tysiące takich par naraz.
+  \textbf{Co przyspieszamy?} W każdym przebiegu local search SWAP* ocenia \textbf{ogromną liczbę par klientów} z różnych tras. To wiele niezależnych, identycznych obliczeń — \emph{idealny wzorzec dla GPU}, które liczy tysiące takich par jednocześnie.
   \vfill
   \centering
   \begin{tikzpicture}[node distance=14mm]
-    \node[box, fill=blue!12] (host) {\textbf{Host (CPU)}\\\scriptsize pętla przeszukiwania,\\bieżące trasy};
-    \node[draw, thick, rounded corners, fill=orange!8, right=34mm of host,
-          minimum width=30mm, minimum height=22mm, label={[font=\scriptsize]above:\textbf{GPU} — siatka wątków}] (gpu) {};
+    \node[box, fill=accent!12] (host) {\textbf{Host (CPU)}\\\scriptsize pętla LS,\\bieżące trasy};
+    \node[draw=accent2!70!black, thick, rounded corners, fill=accent2!8, right=34mm of host,
+          minimum width=30mm, minimum height=22mm, label={[font=\scriptsize]above:\textbf{GPU} — siatka bloków/wątków}] (gpu) {};
     \foreach \r in {0,1,2}\foreach \c in {0,1,2,3,4}
       \node[cell] at ($(gpu.center)+(-1.0+\c*0.5,0.55-\r*0.55)$) {};
     \draw[fl] (host.north east) ++(0,1mm) .. controls +(12mm,7mm) and +(-12mm,7mm) ..
-          node[above,font=\tiny]{kopiuj \textbf{pary} klientów} (gpu.north west);
+          node[above,font=\tiny]{kopiuj \textbf{trasy i pary}} (gpu.north west);
     \draw[fl, draw=good!70!black] (gpu.south west) .. controls +(-12mm,-7mm) and +(12mm,-7mm) ..
-          node[below,font=\tiny]{zwróć najlepszą zamianę} (host.south east);
+          node[below,font=\tiny]{zwróć najlepsze ruchy} (host.south east);
   \end{tikzpicture}
   \vfill
-  {\footnotesize Każda komórka GPU ocenia jedną parę klientów; CPU dostaje gotowy ranking najlepszych zamian.}
+  {\footnotesize Jeden \textbf{blok GPU} przetwarza jedną parę tras; CPU dostaje gotowy zestaw najlepszych zamian do zastosowania.}
 \end{frame}
 
-\begin{frame}{Oś 1: SWAP* na GPU — co zbudowaliśmy i kompromis}
-      \textbf{Co zbudowaliśmy (CUDA)}
-      \begin{itemize}
-        \item \textbf{kernel} liczący koszt zamiany dla wszystkich par równolegle,
-        \item \textbf{spłaszczony układ danych} tras (\texttt{GpuDataLayout}) dla szybkiego dostępu do pamięci GPU,
-        \item \textbf{strumienie CUDA} — nakładanie obliczeń i transferów,
-        \item pomiar zużycia GPU przez \textbf{NVML}.
-      \end{itemize}
+\begin{frame}[fragile]{Oś 1: SWAP* na GPU — implementacja}
+  \textbf{Co zbudowaliśmy (CUDA):}
+  {\small
+  \begin{itemize}
+    \item \textbf{Kernel} — jeden blok CUDA na parę tras (256 wątków); wątki oceniają kandydatów SWAP*/relokacji, a \textbf{redukcja warp + shared memory} wyłania najlepszy ruch pary.
+    \item \textbf{Spłaszczony układ danych} (\texttt{GpuDataLayout}) — trasy, klienci, koszty usunięć i pary w jednym buforze (koalescencja dostępu).
+    \item \textbf{Współdzielony kontekst} (\texttt{GpuProblemData}) — macierz odległości wgrana \textbf{raz na proces} (read-only), referencja we wszystkich instancjach.
+    \item \textbf{Strumień CUDA na instancję} — asynchroniczne transfery i synchronizacja \emph{własnego} strumienia $\Rightarrow$ równoległe instancje LS \textbf{nakładają się} na GPU. Pomiar zużycia przez \textbf{NVML}.
+  \end{itemize}}
+  \vspace{0.1em}
+
+\end{frame}
+
+\begin{frame}{Oś 1: SWAP* na GPU — kompromis}
+  \begin{itemize}
+    \item Karta jest wydajna tylko przy \textbf{dużej ilości równoległej pracy na jedno wywołanie}. Liczba par rośnie z kwadratem długości trasy, więc \textbf{krótkie trasy} (dużo pojazdów) dają mało pracy i dominuje \textbf{narzut uruchomienia kernela i transferu}.
+    \item \textbf{Realny zysk} pojawia się dopiero przy długich trasach lub wielu równoległych ocenach naraz — co pokażą wyniki.
+  \end{itemize}
 \end{frame}
 
 % ---------------------------------------------------------------------------
 %  OŚ 2 — master-slave (OpenMP)
 % ---------------------------------------------------------------------------
 \begin{frame}{Oś 2: model master--slave — pomysł}
-  \textbf{Co chcemy przyspieszyć?} Najdroższy krok tury to ,,szlif'' potomka (przeszukiwanie lokalne). Skoro mamy wiele rdzeni CPU — \textbf{wyprodukujmy wielu potomków naraz}, każdy szlifowany na osobnym wątku.
+  \textbf{Co przyspieszamy?} Najdroższy krok tury to local search potomka. Skoro mamy wiele rdzeni CPU — \textbf{produkujemy wielu potomków naraz}, każdy ulepszany na osobnym wątku.
   \vfill
   \centering
   \begin{tikzpicture}[node distance=8mm and 12mm]
-    \node[box, fill=blue!12] (m) {\textbf{Master}\\\scriptsize wybiera rodziców,\\rozdziela zadania};
-    \node[hot, above right=2mm and 16mm of m] (w1) {Wątek 1\\\scriptsize krzyżowanie + szlif};
-    \node[hot, right=16mm of m]               (w2) {Wątek 2\\\scriptsize krzyżowanie + szlif};
-    \node[hot, below right=2mm and 16mm of m] (w3) {Wątek $k$\\\scriptsize krzyżowanie + szlif};
+    \node[box, fill=accent!12] (m) {\textbf{Master}\\\scriptsize wybiera rodziców,\\rozdziela zadania};
+    \node[hot, above right=2mm and 16mm of m] (w1) {Wątek 1\\\scriptsize OX + Split + LS};
+    \node[hot, right=16mm of m]               (w2) {Wątek 2\\\scriptsize OX + Split + LS};
+    \node[hot, below right=2mm and 16mm of m] (w3) {Wątek $k$\\\scriptsize OX + Split + LS};
     \foreach \w in {w1,w2,w3}{
       \draw[fl] (m.east) -- (\w.west);
       \draw[fl, draw=good!70!black] (\w.west) ++(0,-1mm) .. controls +(-6mm,-4mm) and +(6mm,-4mm) .. (m.east);
     }
   \end{tikzpicture}
   \vfill
-  {\footnotesize W naszym wariancie: \textbf{16 potomków na rundę, 8 wątków}.}
+  {\footnotesize Nasz wariant: \textbf{16 potomków na rundę, 8 wątków}. Master zbiera potomków i seryjnie wstawia do populacji.}
 \end{frame}
 
-\begin{frame}{Oś 2: model master--slave — co zbudowaliśmy i kompromis}
-      \textbf{Co zbudowaliśmy (OpenMP)}
-      \begin{itemize}
-        \item wspólny interfejs \texttt{OffspringMaker} z dwiema implementacjami: \texttt{Standard} (sekwencyjna) i \texttt{Parallel},
-        \item \texttt{ParallelOffspringMaker} — master rozdziela zadania, wątki liczą krzyżowanie + Split + szlif,
-        \item sterowanie parametrami: liczba potomków i liczba wątków,
-        \item dodatkowo: równoległa ścieżka SWAP* na CPU (\texttt{OpenMPLocalSearch}).
-      \end{itemize}
+\begin{frame}[fragile]{Oś 2: model master--slave — implementacja}
+  \textbf{Co zbudowaliśmy (OpenMP):}
+  \begin{itemize}
+    \item Wspólny interfejs \texttt{OffspringMaker} z dwiema implementacjami: \texttt{Standard} (sekwencyjna) i \texttt{Parallel}.
+    \item \texttt{ParallelOffspringMaker} — pula wątków; każdy wątek wykonuje pełny cykl: \textbf{selekcja turniejowa $\to$ OX $\to$ Split $\to$ local search}, na \textbf{własnym} \texttt{LocalSearch} i \texttt{Split} (brak współdzielenia stanu, brak wyścigów).
+  \end{itemize}
+  \vspace{0.3em}
 \end{frame}
 
 % ---------------------------------------------------------------------------
 %  OŚ 3 — model wysp (MPI)
 % ---------------------------------------------------------------------------
 \begin{frame}{Oś 3: model wysp — pomysł}
-  \textbf{Inne podejście do równoległości:} zamiast jednej populacji uruchamiamy \textbf{kilka niezależnych HGS} (,,wysp'') obok siebie. Co jakiś czas wyspy \textbf{wymieniają się najlepszymi rozwiązaniami} (migracja), by nawzajem się inspirować.
+  \textbf{Inne podejście do równoległości:} zamiast jednej populacji uruchamiamy \textbf{kilka niezależnych HGS} (,,wysp'') obok siebie. Co jakiś czas wyspy \textbf{wymieniają najlepsze rozwiązania} (migracja), wzajemnie się inspirując.
   \vfill
   \centering
   \begin{tikzpicture}
-    \node[isle, fill=blue!18] (hub) at (0,0) {Hub};
+    \node[isle, fill=accent!18] (hub) at (0,0) {Hub};
     \foreach \i/\a in {1/30,2/77,3/124,4/171,5/218,6/265,7/312}{
       \node[isle] (i\i) at (\a:1.9) {HGS\\\i};
-      \draw[flb, draw=good!60!black] (hub) -- (i\i);
+      \draw[flb] (hub) -- (i\i);
     }
   \end{tikzpicture}
   \vfill
-  {\footnotesize Topologia \textbf{gwiazdy}: 8 wysp wymienia migrantów przez centralny węzeł. Każda wyspa = \textbf{pełny HGS} na własnej podpopulacji.}
+  {\footnotesize Topologia \textbf{gwiazdy}: 8 wysp wymienia migrantów przez węzeł centralny. Każda wyspa = \textbf{pełny HGS} na własnej podpopulacji, z przesuniętym ziarnem losowym.}
 \end{frame}
 
-\begin{frame}{Oś 3: model wysp — co zbudowaliśmy i kompromis}
-      \textbf{Co zbudowaliśmy (MPI, modularnie)}
+\begin{frame}{Oś 3: model wysp — implementacja}
+  \textbf{Co zbudowaliśmy (MPI, modularnie):} całość rozbita na wymienne komponenty, łączone przez konfigurację:
+  \vfill
+  \begin{columns}[T]
+    \begin{column}{0.5\textwidth}
       \begin{itemize}
-        \item wymienne \textbf{topologie} połączeń (m.in.\ gwiazda),
-        \item \textbf{polityki migracji} — kiedy i jak często wysyłać,
-        \item \textbf{selektory migrantów} — kogo wysłać (np.\ najlepszego),
-        \item obsługa imigrantów i \textbf{komunikator} (synchroniczny, MPI).
+        \item \textbf{Topologie} połączeń: pierścień, dwukierunkowy pierścień, hiperkostka, \textbf{gwiazda}, graf pełny, losowy regularny.
+        \item \textbf{Polityki migracji}: stały interwał, wyzwalana poprawą, adaptacyjna, sterowana różnorodnością.
       \end{itemize}
+    \end{column}
+    \begin{column}{0.5\textwidth}
+      \begin{itemize}
+        \item \textbf{Selektor migrantów} i \textbf{obsługa imigrantów} (wstaw / z LS / z naprawą).
+        \item \textbf{Komunikator MPI}.
+      \end{itemize}
+    \end{column}
+  \end{columns}
+  \vfill
+  {\footnotesize Migrowana jest \textbf{gigantyczna trasa}; odbiorca odtwarza struktury tras własnym Splitem. W eksperymentach: topologia gwiazdy, 8 wysp, komunikator synchroniczny.}
 \end{frame}
-
 
 % ===========================================================================
 \section{Wyniki eksperymentów}
 % ===========================================================================
 \begin{frame}{Konfiguracja eksperymentów}
   \begin{itemize}
-    \item \textbf{5 instancji XL} (2354–10001 klientów), \textbf{6 wariantów}, \textbf{limit czasu 600 s}, seed 1.
-    \item Mierzone: jakość (koszt), liczba tur algorytmu, ewaluowane pary SWAP*, ruchy lokalne, wykorzystanie CPU/GPU, migracje, rundy potomstwa.
+    \item \textbf{Instancje klasy XL} (od 2354 do 10001 klientów), \textbf{6 wariantów}, \textbf{limit czasu 600 s}, ziarno 1.
+    \item Mierzone: jakość (koszt), liczba tur, ewaluowane pary SWAP*, ruchy lokalne, wykorzystanie CPU/GPU, migracje, rundy potomstwa.
+    \item Cel: czy któraś oś zrównoleglenia \textbf{poprawia jakość} w stałym budżecie czasu.
   \end{itemize}
 \end{frame}
 
 \begin{frame}{Poprawa jakości względem baseline}
   \centering
   \includegraphics[height=0.78\textheight]{01_quality_improvement.png}
-  \par\footnotesize Wartość dodatnia = lepiej niż baseline. Skala efektu: ułamki procenta.
+  \par\footnotesize Wartość dodatnia = lepiej niż baseline. Skala efektu: \textbf{ułamki procenta}.
 \end{frame}
 
-\begin{frame}{Mapa cieplna jakości — gdzie jest zielono, a gdzie czerwono}
+\begin{frame}{Mapa cieplna jakości}
   \centering
   \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{07_quality_heatmap.png}
-  \par\medskip\begin{minipage}{0.92\textwidth}\footnotesize Najbardziej złożony wariant (wyspy+GPU+offspring) jest często \bad{czerwony} — gorszy od baseline.\end{minipage}
+  \par\medskip\begin{minipage}{0.92\textwidth}\footnotesize Najbardziej złożony wariant (wyspy + GPU + offspring) jest często \bad{czerwony} — gorszy od baseline. Składanie mechanizmów nie sumuje korzyści.\end{minipage}
 \end{frame}
 
-
-\begin{frame}{Liczby — najlepszy wariant na każdej instancji}
+\begin{frame}{Najlepszy wariant na każdej instancji}
   \centering
   \small
   \begin{tabular}{l r r r l}
     \toprule
-    Instancja & Baseline & Najlepszy wariant & $\Delta$ & Który wariant \\
+    Instancja & Baseline & Najlepszy wariant & $\Delta$ & Wariant \\
     \midrule
-    XL-n2354-k631  & 947\,790   & 945\,389   & \good{+0,25\%} & GPU+Off \\
-    XL-n2494-k194  & 366\,131   & 364\,057   & \good{+0,57\%} & GPU+Off \\
-    XL-n2634-k17   & 33\,220    & 32\,701    & \good{+1,56\%} & Offspring \\
-    XL-n5174-k55   & 65\,467    & 63\,756    & \good{+2,61\%} & Offspring \\
-    XL-n5288-k1246 & 1\,984\,069 & 1\,982\,432 & \good{+0,08\%} & GPU \\
-    XL-n5406-k783  & 1\,058\,333 & 1\,052\,987 & \good{+0,51\%} & GPU+Off \\
-    XL-n10001-k1570& 2\,363\,410 & 2\,362\,345 & \good{+0,05\%} & GPU \\
+    XL-n2354-k631   & 947\,790    & 945\,389    & \good{+0,25\%} & GPU+Off \\
+    XL-n2494-k194   & 366\,131    & 364\,057    & \good{+0,57\%} & GPU+Off \\
+    XL-n2634-k17    & 33\,220     & 32\,701     & \good{+1,56\%} & Offspring \\
+    XL-n5174-k55    & 65\,467     & 63\,756     & \good{+2,61\%} & Offspring \\
+    XL-n5288-k1246  & 1\,984\,069 & 1\,982\,432 & \good{+0,08\%} & GPU \\
+    XL-n5406-k783   & 1\,058\,333 & 1\,052\,987 & \good{+0,51\%} & GPU+Off \\
+    XL-n10001-k1570 & 2\,363\,410 & 2\,362\,345 & \good{+0,05\%} & GPU \\
     \bottomrule
   \end{tabular}
+  \par\vspace{0.6em}{\footnotesize Nawet najlepszy wariant poprawia baseline jedynie o ułamki procenta (poza dwiema instancjami z bardzo długimi trasami).}
 \end{frame}
 
-
-\begin{frame}{Wykorzystanie sprzętu — sedno problemu}
+\begin{frame}{Wykorzystanie sprzętu}
   \centering
   \includegraphics[width=\textwidth,height=0.74\textheight,keepaspectratio]{03_hw_utilization_heatmap.png}
 \end{frame}
 
-\begin{frame}{Dlaczego GPU ożywa przy małej liczbie pojazdów?}
+\begin{frame}{Utylizacja GPU rośnie przy małej liczbie pojazdów}
   \begin{columns}[T]
     \begin{column}{0.56\textwidth}
-      Karta jest wydajna tylko wtedy, gdy ma \textbf{dużo równoległej pracy na jedno wywołanie}.
+      Karta jest wydajna tylko, gdy ma \textbf{dużo równoległej pracy na jedno wywołanie}.
       \vspace{0.4em}
       \begin{itemize}
-        \item SWAP* porównuje \textbf{pary klientów} wewnątrz i między trasami — liczba par rośnie z \textbf{kwadratem długości trasy}.
-        \item \textbf{Mało pojazdów} $\Rightarrow$ trasy bardzo \textbf{długie} (nawet $\sim$155 klientów/trasę) $\Rightarrow$ ogromne, gęste bloki pracy $\Rightarrow$ \good{rdzenie GPU zajęte}.
-        \item \textbf{Dużo pojazdów} $\Rightarrow$ trasy \textbf{malutkie} (3--4 klientów) $\Rightarrow$ pracy jak na lekarstwo $\Rightarrow$ dominuje narzut uruchomienia kernela i transferu $\Rightarrow$ \bad{GPU głoduje}.
+        \item SWAP* porównuje \textbf{pary klientów} w obrębie pary tras — liczba par rośnie z \textbf{kwadratem długości trasy}.
+        \item \textbf{Mało pojazdów} $\Rightarrow$ trasy \textbf{długie} $\Rightarrow$ duże, gęste bloki pracy $\Rightarrow$ \good{rdzenie GPU zajęte}.
+        \item \textbf{Dużo pojazdów} $\Rightarrow$ trasy \textbf{krótkie} (3--4 klientów) $\Rightarrow$ pracy jak na lekarstwo $\Rightarrow$ dominuje narzut launchu i transferu $\Rightarrow$ \bad{słaba utylizacja}.
       \end{itemize}
     \end{column}
     \begin{column}{0.44\textwidth}
@@ -328,96 +547,40 @@
         \toprule
         Instancja & \makecell{klienci\\/trasę} & \makecell{rdzenie\\GPU} \\
         \midrule
-        XL-n2634-\textbf{k17}   & 155 & \good{91\%} \\
-        XL-n5174-\textbf{k55}   & 94  & \good{80\%} \\
-        XL-n2494-k194           & 13  & 9\% \\
-        XL-n5406-k783           & 7   & 15\% \\
-        XL-n5288-k1246          & 4   & 9\% \\
-        XL-n2354-k631           & 4   & 9\% \\
+        XL-n2634-\textbf{k17}  & 155 & \good{91\%} \\
+        XL-n5174-\textbf{k55}  & 94  & \good{80\%} \\
+        XL-n2494-k194          & 13  & 9\% \\
+        XL-n5406-k783          & 7   & 15\% \\
+        XL-n5288-k1246         & 4   & 9\% \\
+        XL-n2354-k631          & 4   & 9\% \\
         \bottomrule
       \end{tabular}
-      \par\vspace{0.4em}
-      {\tiny ,,k'' w nazwie = liczba pojazdów. Średnia długość trasy $=n/k$.}
+      \par\vspace{0.4em}{\tiny ,,k'' w nazwie = liczba pojazdów; średnia długość trasy $= n/k$.}
     \end{column}
   \end{columns}
 \end{frame}
-
-
-% ===========================================================================
-\section{Spojrzenie biznesowe}
-% ===========================================================================
-\begin{frame}{Czy to się opłaca? Bilans kosztów i korzyści}
-  \begin{columns}[T]
-    \begin{column}{0.5\textwidth}
-      \textbf{Korzyść}
-      \begin{itemize}
-        \item poprawa jakości: \good{$<1\%$} (mediana), niestabilna,
-        \item czasem \bad{pogorszenie} jakości.
-      \end{itemize}
-    \end{column}
-    \begin{column}{0.5\textwidth}
-      \textbf{Koszt}
-      \begin{itemize}
-        \item karta GPU (capex) + 8 rdzeni CPU + środowisko MPI,
-        \item ~3$\times$ większa złożoność kodu (CUDA + OpenMP + MPI),
-        \item utrzymanie, debugowanie, sprzęt.
-      \end{itemize}
-    \end{column}
-  \end{columns}
-  \vfill
-  \begin{alert}{Wniosek biznesowy}
-    Płacimy znaczną cenę sprzętową i inżynierską za zysk jakości na poziomie szumu. \textbf{Stosunek koszt/korzyść jest niekorzystny.}
-  \end{alert}
-\end{frame}
-
-\begin{frame}{Zużycie energii — perspektywa ,,perf-per-watt''}
-  Szacunek poglądowy (rzędy wielkości, ten sam czas 600 s):
-  \vfill
-  \centering
-  \small
-  \begin{tabular}{l c c c}
-    \toprule
-    Wariant & Pobór mocy & Energia (600 s) & Zysk jakości \\
-    \midrule
-    Baseline (1 rdzeń)        & ~50 W            & ~8 Wh   & --- \\
-    Offspring (8 rdzeni)      & ~130 W           & ~22 Wh  & \good{$\sim$+1\%} \\
-    GPU + offspring           & ~280 W           & ~47 Wh  & \good{$\sim$+0,5\%} \\
-    Wyspy + GPU + offspring   & ~300 W           & ~50 Wh  & \bad{często $<0$} \\
-    \bottomrule
-  \end{tabular}
-  \vfill
-  \footnotesize Pobór mocy mierzony za pomocą urządzenia monitorującego pobór mocy z gniazdka. Wartości uśrednione dla różnych instancji. 
-\end{frame}
-
 
 % ===========================================================================
 \section{Wnioski}
 % ===========================================================================
 \begin{frame}{Wnioski}
-  Niestety nasze podejście do problemu było wadliwe od samego początku — próbowaliśmy \textbf{dopasować algorytm do równoległości}, 
-  zamiast \textbf{dopasować równoległość do algorytmu}. HGS jest zbudowany wokół sekwencyjnej, adaptacyjnej pętli, która nie daje 
-  się łatwo rozbić na niezależne kawałki. Próby zrównoleglenia tej pętli \textbf{nie poprawiły jakości} w sposób istotny, a czasem ją
-  pogorszyły — bo wąskim gardłem nie jest przepustowość, lecz algorytm i struktura zależności danych.\\
+  \begin{block}{Główny wniosek}
+    Zrównoleglenie \textbf{nie poprawiło jakości} w istotny sposób, a najbardziej złożony wariant często ją pogarszał. Wąskim gardłem nie jest przepustowość obliczeń, lecz \textbf{sam algorytm i struktura zależności danych}.
+  \end{block}
   \vfill
-  Lepszym podejściem byłoby zbadanie algorytmów polegających na iteracyjnym ulepszaniu rozwiązania, które są \textbf{zaprojektowane z myślą o równoległości} 
-\end{frame}
-
-\begin{frame}{Czego się nauczyliśmy?}
   \begin{itemize}
-    \item Lepiej poznaliśmy mechanizmy działania algorytmów genetycznych i metaheurystycznych.
-    \item Nauczyliśmy się technologii równoległych, szczególnie openMP oraz MPI, i ich zastosowania w praktyce.
-    \item Chociaż nie udało się zawżeć tego w końcowym raporcie, to mieliśmy możliwość skorzystania z dużego klastra obliczeniowego
-    i nauczenia się podstaw pracy z systemem kolejkowym, zarządzania zadaniami i monitorowania zasobów.
+    \item HGS jest zbudowany wokół \textbf{sekwencyjnej, adaptacyjnej pętli} (kary, różnorodność, selekcja), która nie rozbija się na niezależne kawałki bez zmiany dynamiki przeszukiwania.
+    \item GPU pomaga \textbf{tylko} tam, gdzie trasy są długie (dużo równoległej pracy); przy krótkich trasach narzut przewyższa zysk.
+    \item Lepszym kierunkiem byłyby algorytmy iteracyjnej poprawy \textbf{zaprojektowane z myślą o równoległości}, zamiast doklejania równoległości do z gruntu sekwencyjnego schematu.
   \end{itemize}
 \end{frame}
 
-
-\begin{frame}{}
+\begin{frame}[plain]
   \vfill
   \centering
-  \Large Dziękujemy za uwagę.\\[1em]
+  {\color{accent}\Large\textbf{Dziękujemy za uwagę.}}\\[1em]
+  \footnotesize Hubert Blonowski \quad\textbullet\quad Jan Zaborski
   \vfill
 \end{frame}
 
 \end{document}
-
